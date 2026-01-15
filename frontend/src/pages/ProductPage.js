@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../services/api';
 import CreativeView from '../components/CreativeView';
-import './ProductPage.css';
+import Video from '../assets/icons/Video';
 
 function ProductPage({ onBack }) {
   const { id } = useParams();
@@ -82,77 +82,115 @@ function ProductPage({ onBack }) {
   };
 
   if (loading) {
-    return <div className="loading">Загрузка...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-xl text-gray-600">Загрузка...</div>
+      </div>
+    );
   }
 
   if (error && !product) {
     return (
-      <div className="error-container">
-        <div className="error">Ошибка: {error}</div>
-        {onBack && <button onClick={onBack} className="btn btn-secondary">Назад</button>}
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="max-w-2xl mx-auto text-center px-6">
+          <div className="mb-6 p-5 bg-red-50 border-2 border-red-200 rounded-xl text-red-700 font-medium">
+            Ошибка: {error}
+          </div>
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-300 transition-colors"
+            >
+              Назад
+            </button>
+          )}
+        </div>
       </div>
     );
   }
 
   if (!product) {
-    return <div className="loading">Продукт не найден</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-xl text-gray-600">Продукт не найден</div>
+      </div>
+    );
   }
 
   return (
-    <div className="product-page">
-      <div className="product-page-header">
-        {onBack && (
-          <button onClick={onBack} className="btn btn-secondary back-btn">
-            ← Назад
-          </button>
-        )}
-        <div className="product-info">
-          <h1>{product.name}</h1>
-          <p className="product-description">{product.description}</p>
-        </div>
-        <button
-          onClick={handleGenerate}
-          disabled={generating}
-          className="btn btn-primary generate-btn"
-        >
-          {generating ? 'Генерация...' : '🎬 Сгенерировать креатив'}
-        </button>
-      </div>
-
-      {error && <div className="error-message">{error}</div>}
-
-      {product.images && product.images.length > 0 && (
-        <div className="product-images-section">
-          <h3>Изображения продукта:</h3>
-          <div className="product-images">
-            {product.images.map((image, index) => (
-              <img
-                key={index}
-                src={`http://localhost:8000/storage/${image}`}
-                alt={`${product.name} ${index + 1}`}
-                onError={(e) => {
-                  e.target.style.display = 'none';
-                }}
-              />
-            ))}
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-md p-6 lg:p-8 mb-8">
+          <div className="flex flex-col lg:flex-row lg:items-start gap-6">
+            {onBack && (
+              <button
+                onClick={onBack}
+                className="flex-shrink-0 px-4 py-2 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors"
+              >
+                ← Назад
+              </button>
+            )}
+            <div className="flex-1 min-w-0">
+              <h1 className="text-4xl font-bold text-gray-900 mb-4 tracking-tight">
+                {product.name}
+              </h1>
+              <p className="text-lg text-gray-600 leading-relaxed">
+                {product.description}
+              </p>
+            </div>
+            <button
+              onClick={handleGenerate}
+              disabled={generating}
+              className="flex-shrink-0 px-6 py-3 bg-primary text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed hover:-translate-y-0.5 flex items-center gap-2"
+            >
+              <Video className="w-5 h-5" />
+              {generating ? 'Генерация...' : 'Сгенерировать креатив'}
+            </button>
           </div>
         </div>
-      )}
 
-      <div className="creatives-section">
-        <h2>Сгенерированные креативы ({creatives.length})</h2>
-        {creatives.length === 0 ? (
-          <div className="empty-creatives">
-            <p>Пока нет сгенерированных креативов</p>
-            <p className="hint">Нажмите "Сгенерировать креатив" чтобы начать</p>
-          </div>
-        ) : (
-          <div className="creatives-list">
-            {creatives.map((creative) => (
-              <CreativeView key={creative.id} creative={creative} product={product} />
-            ))}
+        {error && (
+          <div className="mb-6 p-5 bg-red-50 border-2 border-red-200 rounded-xl text-red-700 font-medium">
+            {error}
           </div>
         )}
+
+        {product.images && product.images.length > 0 && (
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-md p-6 lg:p-8 mb-8">
+            <h3 className="text-2xl font-semibold text-gray-900 mb-6">Изображения продукта</h3>
+            <div className="flex flex-wrap gap-6">
+              {product.images.map((image, index) => (
+                <img
+                  key={index}
+                  src={`http://localhost:8000/storage/${image}`}
+                  alt={`${product.name} ${index + 1}`}
+                  className="w-56 h-56 object-cover rounded-xl border-2 border-gray-200 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="mt-8">
+          <h2 className="text-3xl font-bold text-gray-900 mb-6 tracking-tight">
+            Сгенерированные креативы ({creatives.length})
+          </h2>
+          {creatives.length === 0 ? (
+            <div className="bg-white rounded-2xl border-2 border-dashed border-gray-300 p-12 lg:p-16 text-center">
+              <p className="text-lg text-gray-600 mb-2">Пока нет сгенерированных креативов</p>
+              <p className="text-sm text-gray-500">Нажмите "Сгенерировать креатив" чтобы начать</p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {creatives.map((creative) => (
+                <CreativeView key={creative.id} creative={creative} product={product} />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
