@@ -1,0 +1,163 @@
+.product-page {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 3rem 2rem;
+  background: var(--bg-secondary);
+  min-height: 100vh;
+}
+
+.product-page-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 2rem;
+  margin-bottom: 3rem;
+  padding: 2.5rem;
+  background: var(--bg-primary);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+  flex-wrap: wrap;
+}
+
+.back-btn {
+  flex-shrink: 0;
+}
+
+.product-info {
+  flex: 1;
+  min-width: 300px;
+}
+
+.product-info h1 {
+  margin: 0 0 1rem 0;
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.product-description {
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.7;
+  font-size: 1.0625rem;
+}
+
+.generate-btn {
+  flex-shrink: 0;
+  white-space: nowrap;
+  padding: 1rem 2.5rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  background: var(--primary-gradient);
+  color: white;
+  border: none;
+  border-radius: var(--radius-xl);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-lg);
+}
+
+.generate-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-xl);
+  background: var(--primary-gradient-hover);
+}
+
+.generate-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.product-images-section {
+  margin-bottom: 4rem;
+  padding: 2.5rem;
+  background: var(--bg-primary);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+}
+
+.product-images-section h3 {
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.product-images {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.product-images img {
+  width: 220px;
+  height: 220px;
+  object-fit: cover;
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+  transition: transform 0.3s ease;
+}
+
+.product-images img:hover {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-lg);
+}
+
+.creatives-section {
+  margin-top: 3rem;
+}
+
+.creatives-section h2 {
+  margin-bottom: 2rem;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.empty-creatives {
+  text-align: center;
+  padding: 5rem 3rem;
+  background: var(--bg-primary);
+  border-radius: var(--radius-xl);
+  border: 2px dashed var(--border-color);
+  color: var(--text-secondary);
+}
+
+.empty-creatives .hint {
+  margin-top: 0.75rem;
+  font-size: 0.9375rem;
+  color: var(--text-light);
+}
+
+.creatives-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.error-container {
+  max-width: 600px;
+  margin: 2rem auto;
+  text-align: center;
+}
+
+.error-message {
+  padding: 1.25rem 1.5rem;
+  background: #fef2f2;
+  color: #dc2626;
+  border-radius: var(--radius-md);
+  margin-bottom: 1.5rem;
+  border: 2px solid #fecaca;
+  font-weight: 500;
+}
+
+.loading {
+  text-align: center;
+  padding: 4rem 3rem;
+  font-size: 1.125rem;
+  color: var(--text-secondary);
+}
