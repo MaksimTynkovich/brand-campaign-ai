@@ -5,6 +5,13 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\CreativeController;
 use App\Http\Controllers\Api\GenerationController;
+use App\Http\Controllers\Api\AuthController;
+
+// Auth routes (public)
+Route::post('/auth/register', [AuthController::class, 'register']);
+Route::post('/auth/login', [AuthController::class, 'login']);
+Route::get('/auth/google', [AuthController::class, 'google']);
+Route::get('/auth/google/callback', [AuthController::class, 'googleCallback']);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

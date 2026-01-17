@@ -11,7 +11,7 @@ function VideoCarousel() {
   const duplicatedVideos = [...videoUrls, ...videoUrls, ...videoUrls];
 
   return (
-    <section className="py-16 bg-white overflow-hidden">
+    <section id="demo" className="py-16 bg-white overflow-hidden scroll-mt-20">
       <div className="relative">
         <div className="flex animate-infinite-scroll carousel-container">
           {duplicatedVideos.map((url, index) => (

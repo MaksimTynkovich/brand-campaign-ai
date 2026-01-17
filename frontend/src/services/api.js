@@ -130,6 +130,49 @@ class ApiService {
   async getGenerationStatus(jobId) {
     return this.request(`/generation/status/${jobId}`);
   }
+
+  // Auth
+  async login(email, password) {
+    const response = await this.request('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+    
+    if (response.token) {
+      localStorage.setItem('auth_token', response.token);
+      localStorage.setItem('user', JSON.stringify(response.user));
+    }
+    
+    return response;
+  }
+
+  async register(email, password) {
+    const response = await this.request('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+    
+    if (response.token) {
+      localStorage.setItem('auth_token', response.token);
+      localStorage.setItem('user', JSON.stringify(response.user));
+    }
+    
+    return response;
+  }
+
+  async logout() {
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('user');
+  }
+
+  getCurrentUser() {
+    const userStr = localStorage.getItem('user');
+    return userStr ? JSON.parse(userStr) : null;
+  }
+
+  isAuthenticated() {
+    return !!localStorage.getItem('auth_token');
+  }
 }
 
 export default new ApiService();
