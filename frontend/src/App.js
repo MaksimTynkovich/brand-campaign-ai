@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, useNavigate, useParams } from '
 import ProductForm from './components/ProductForm';
 import ProductPage from './pages/ProductPage';
 import AuthPage from './pages/AuthPage';
+import Dashboard from './pages/Dashboard';
 import VideoCarousel from './components/VideoCarousel';
 import Sparkles from './assets/icons/Sparkles';
 import Package from './assets/icons/Package';
@@ -727,6 +728,7 @@ function App() {
         <Route path="/products/:id" element={<ProductPageWrapper />} />
         <Route path="/login" element={<AuthPage mode="login" />} />
         <Route path="/register" element={<AuthPage mode="register" />} />
+        <Route path="/dashboard/*" element={<Dashboard />} />
       </Routes>
     </Router>
   );

@@ -173,6 +173,21 @@ class ApiService {
   isAuthenticated() {
     return !!localStorage.getItem('auth_token');
   }
+
+  // Dashboard
+  async getDashboardStats() {
+    try {
+      return await this.request('/dashboard/stats');
+    } catch (err) {
+      // Если endpoint не существует, возвращаем mock данные
+      return {
+        total_projects: 0,
+        total_creatives: 0,
+        completed_creatives: 0,
+        videos_this_month: 0,
+      };
+    }
+  }
 }
 
 export default new ApiService();

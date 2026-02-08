@@ -17,6 +17,19 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+// Dashboard (protected)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/dashboard/stats', function (Request $request) {
+        // Mock статистика
+        return response()->json([
+            'total_projects' => 12,
+            'total_creatives' => 45,
+            'completed_creatives' => 38,
+            'videos_this_month' => 15,
+        ]);
+    });
+});
+
 // Products
 Route::apiResource('products', ProductController::class);
 
