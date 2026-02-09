@@ -9,7 +9,6 @@ function ProductForm({ onSuccess, onCancel }) {
     language: 'ru',
     ad_angle: '',
   });
-  const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -19,16 +18,6 @@ function ProductForm({ onSuccess, onCancel }) {
       ...prev,
       [name]: value
     }));
-  };
-
-  const handleImageChange = (e) => {
-    const files = Array.from(e.target.files);
-    if (files.length > 3) {
-      setError('Максимум 3 изображения');
-      return;
-    }
-    setImages(files);
-    setError(null);
   };
 
   const handleSubmit = async (e) => {
@@ -44,10 +33,6 @@ function ProductForm({ onSuccess, onCancel }) {
       formDataToSend.append('language', formData.language);
       formDataToSend.append('ad_angle', formData.ad_angle);
 
-      images.forEach((image) => {
-        formDataToSend.append('images[]', image);
-      });
-
       const product = await api.createProduct(formDataToSend);
       onSuccess(product);
     } catch (err) {
@@ -55,10 +40,6 @@ function ProductForm({ onSuccess, onCancel }) {
     } finally {
       setLoading(false);
     }
-  };
-
-  const removeImage = (index) => {
-    setImages(prev => prev.filter((_, i) => i !== index));
   };
 
   return (
@@ -95,41 +76,6 @@ function ProductForm({ onSuccess, onCancel }) {
             placeholder="Опишите ваш продукт..."
             className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all resize-y text-gray-900"
           />
-        </div>
-
-        <div>
-          <label htmlFor="images" className="block text-sm font-semibold text-gray-900 mb-2">
-            Изображения (1-3 шт) *
-          </label>
-          <input
-            type="file"
-            id="images"
-            accept="image/*"
-            multiple
-            onChange={handleImageChange}
-            required
-            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary-hover"
-          />
-          {images.length > 0 && (
-            <div className="flex gap-4 mt-4 flex-wrap">
-              {images.map((image, index) => (
-                <div key={index} className="relative w-32 h-32 rounded-xl overflow-hidden border-2 border-gray-200 group">
-                  <img
-                    src={URL.createObjectURL(image)}
-                    alt={`Preview ${index + 1}`}
-                    className="w-full h-full object-cover"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeImage(index)}
-                    className="absolute top-2 right-2 w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
 
         <div>
@@ -199,7 +145,7 @@ function ProductForm({ onSuccess, onCancel }) {
           <button
             type="submit"
             className="px-8 py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary-hover transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={loading || images.length === 0}
+            disabled={loading}
           >
             {loading ? 'Создание...' : 'Создать продукт'}
           </button>

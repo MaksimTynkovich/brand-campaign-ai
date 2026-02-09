@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useParams } from 'react-router-dom';
-import ProductForm from './components/ProductForm';
 import ProductPage from './pages/ProductPage';
 import AuthPage from './pages/AuthPage';
 import Dashboard from './pages/Dashboard';
@@ -14,7 +13,6 @@ import Checkmark from './assets/icons/Checkmark';
 import api from './services/api';
 
 function AppContent() {
-  const [showForm, setShowForm] = useState(false);
   const [billingPeriod, setBillingPeriod] = useState('month'); // 'month' or 'year'
   const [openFaq, setOpenFaq] = useState(null);
   const navigate = useNavigate();
@@ -50,27 +48,16 @@ function AppContent() {
     };
   }, []);
 
-  const handleCreateNew = () => {
-    // Проверяем авторизацию
+  const handlePrimaryCta = () => {
     if (!api.isAuthenticated()) {
       navigate('/login');
       return;
     }
-    setShowForm(true);
-  };
-
-  const handleFormSuccess = (product) => {
-    setShowForm(false);
-    navigate(`/products/${product.id}`);
-  };
-
-  const handleFormCancel = () => {
-    setShowForm(false);
+    navigate('/dashboard');
   };
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Navigation */}
       <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
         <div className="max-w-1140 mx-auto px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
@@ -94,46 +81,27 @@ function AppContent() {
                 Демо
               </a>
               <div className="relative group">
-                <button className="flex items-center gap-1 text-gray-700 hover:text-gray-900 font-medium transition-colors">
+                <a href="#features" className="flex items-center gap-1 text-gray-700 hover:text-gray-900 font-medium transition-colors">
                   Функции
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
+                </a>
               </div>
               <a href="#pricing" className="text-gray-700 hover:text-gray-900 font-medium transition-colors">
                 Тарифы
-              </a>
-              <a href="#blog" className="text-gray-700 hover:text-gray-900 font-medium transition-colors">
-                Блог
               </a>
             </nav>
 
             {/* Right Side Actions */}
             <div className="flex items-center gap-4">
               {api.isAuthenticated() ? (
-                <>
-                  <span className="hidden md:block text-gray-700 font-medium">
-                    {api.getCurrentUser()?.name || 'Пользователь'}
-                  </span>
-                  <button
-                    onClick={() => {
-                      api.logout();
-                      window.location.reload();
-                    }}
-                    className="hidden md:block text-gray-700 hover:text-gray-900 font-medium transition-colors"
-                  >
-                    Выйти
-                  </button>
-                </>
-              ) : (
-                <a href="/login" className="hidden md:block text-gray-700 hover:text-gray-900 font-medium transition-colors">
-                  Войти
-                </a>
-              )}
-              {!showForm && (
                 <button
-                  onClick={handleCreateNew}
+                  onClick={() => navigate('/dashboard')}
+                  className="px-6 py-2.5 bg-primary text-white rounded-lg font-semibold hover:bg-primary-hover transition-all duration-200"
+                >
+                  Профиль
+                </button>
+              ) : (
+                <button
+                  onClick={handlePrimaryCta}
                   className="px-6 py-2.5 bg-primary text-white rounded-lg font-semibold hover:bg-primary-hover transition-all duration-200"
                 >
                   Начать
@@ -145,15 +113,7 @@ function AppContent() {
       </header>
 
       <main>
-        {showForm ? (
-          <div className="py-12 bg-gray-50">
-            <ProductForm
-              onSuccess={handleFormSuccess}
-              onCancel={handleFormCancel}
-            />
-          </div>
-        ) : (
-          <>
+        <>
             {/* Hero Section */}
             <section className="relative pt-24 pb-8 overflow-hidden">
               <div className="max-w-1140 mx-auto px-6 lg:px-8">
@@ -169,7 +129,7 @@ function AppContent() {
                   </p>
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                     <button
-                      onClick={handleCreateNew}
+                      onClick={handlePrimaryCta}
                       className="px-8 py-4 bg-primary text-white rounded-2xl font-semibold text-lg hover:bg-primary-hover transition-all duration-200 shadow-xl hover:shadow-2xl hover:-translate-y-0.5"
                     >
                       Создать первое видео
@@ -255,11 +215,11 @@ function AppContent() {
                       Создавайте выигрышные креативы с мощными функциями
                     </h2>
                     <p className="text-xl text-gray-600">
-                      Все, что нужно для создания рекламы TikTok, которая выглядит реально и действительно конвертирует.
+                      Все, что нужно для создания рекламы, которая выглядит реально и действительно конвертирует.
                     </p>
                   </div>
                   <button
-                    onClick={handleCreateNew}
+                    onClick={handlePrimaryCta}
                     className="px-8 py-4 bg-primary text-white rounded-2xl font-semibold text-lg hover:bg-primary-hover transition-all duration-200 shadow-lg hover:shadow-xl whitespace-nowrap"
                   >
                     Создать первое видео
@@ -614,7 +574,7 @@ function AppContent() {
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                   <button
-                    onClick={handleCreateNew}
+                    onClick={handlePrimaryCta}
                     className="px-8 py-4 bg-white text-primary rounded-2xl font-semibold text-lg hover:bg-gray-100 transition-all duration-200 shadow-xl hover:shadow-2xl hover:-translate-y-0.5"
                   >
                     Создать первое видео бесплатно
@@ -624,18 +584,20 @@ function AppContent() {
                   </button>
                 </div>
                 <p className="mt-6 text-blue-100 text-sm">
-                  Без кредитной карты • Начните за 2 минуты • Отмена в любой момент
+                  Доступно всем • Просто, быстро и удобно • Попробуйте прямо сейчас
                 </p>
               </div>
             </section>
 
-          </>
-        )}
+        </>
       </main>
 
-      {/* Footer — MVP: копирайт, политика, контакт */}
+      {/* Footer — кратко о продукте + ссылки */}
       <footer className="bg-gray-900 text-gray-400 border-t border-gray-800">
-        <div className="max-w-1140 mx-auto px-6 lg:px-8 py-6">
+        <div className="max-w-1140 mx-auto px-6 lg:px-8 py-8">
+          <p className="text-center text-sm text-gray-500 max-w-xl mx-auto mb-6">
+            AI‑реклама нового поколения — запускай и смотри, как лиды летят к тебе! Вирально, мощно, именно то, что нужно для роста.
+          </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-sm">
             <span>© {new Date().getFullYear()} adPilotsAI</span>
             <span className="hidden sm:inline text-gray-600">·</span>
