@@ -4,6 +4,7 @@ import api from '../services/api';
 import Sidebar from '../components/dashboard/Sidebar';
 import TopBar from '../components/dashboard/TopBar';
 import DashboardHome from '../components/dashboard/DashboardHome';
+import DashboardBilling from '../components/dashboard/DashboardBilling';
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -18,9 +19,6 @@ function Dashboard() {
     }
   }, [navigate]);
 
-  // Определяем, показывать ли DashboardHome
-  const showHome = location.pathname === '/dashboard' || location.pathname === '/dashboard/';
-
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
@@ -33,7 +31,10 @@ function Dashboard() {
 
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto">
-          {showHome && <DashboardHome />}
+          <Routes>
+            <Route path="/" element={<DashboardHome />} />
+            <Route path="billing" element={<DashboardBilling />} />
+          </Routes>
         </main>
       </div>
     </div>
