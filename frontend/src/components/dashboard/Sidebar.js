@@ -1,12 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import api from '../../services/api';
-import Video from '../../assets/icons/Video';
-import Package from '../../assets/icons/Package';
 import Sparkles from '../../assets/icons/Sparkles';
-import Lightning from '../../assets/icons/Lightning';
-import Checkmark from '../../assets/icons/Checkmark';
-import Globe from '../../assets/icons/Globe';
 
 function CreditCardIcon({ className }) {
   return (
@@ -27,30 +22,9 @@ function Sidebar({ isOpen, onToggle }) {
       exact: true,
     },
     {
-      title: 'Создать ролик',
-      icon: Video,
-      path: '/dashboard/create',
-      primary: true,
-    },
-    {
-      title: 'Проекты',
-      icon: Package,
-      path: '/dashboard/projects',
-    },
-    {
-      title: 'Креативы',
-      icon: Checkmark,
-      path: '/dashboard/creatives',
-    },
-    {
       title: 'Тариф и оплата',
       icon: CreditCardIcon,
       path: '/dashboard/billing',
-    },
-    {
-      title: 'Настройки',
-      icon: Globe,
-      path: '/dashboard/settings',
     },
   ];
 
@@ -108,22 +82,6 @@ function Sidebar({ isOpen, onToggle }) {
               {menuItems.map((item) => {
                 const IconComponent = item.icon;
                 const active = isActive(item.path, item.exact);
-
-                if (item.primary) {
-                  return (
-                    <Link
-                      key={item.path}
-                      to={item.path}
-                      className="block w-full"
-                    >
-                      <button className="w-full flex items-center gap-3 px-4 py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary-hover transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-                        <IconComponent className="w-5 h-5" />
-                        <span>{item.title}</span>
-                      </button>
-                    </Link>
-                  );
-                }
-
                 return (
                   <Link
                     key={item.path}

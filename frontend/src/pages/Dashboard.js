@@ -5,6 +5,7 @@ import Sidebar from '../components/dashboard/Sidebar';
 import TopBar from '../components/dashboard/TopBar';
 import DashboardHome from '../components/dashboard/DashboardHome';
 import DashboardBilling from '../components/dashboard/DashboardBilling';
+import CreateFromTemplate from './CreateFromTemplate';
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -33,6 +34,7 @@ function Dashboard() {
         <main className="flex-1 overflow-y-auto">
           <Routes>
             <Route path="/" element={<DashboardHome />} />
+            <Route path="create" element={<CreateFromTemplate />} />
             <Route path="billing" element={<DashboardBilling />} />
           </Routes>
         </main>

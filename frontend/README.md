@@ -31,7 +31,6 @@ REACT_APP_API_URL=http://your-api-url/api
 ```
 src/
 ├── components/          # Переиспользуемые компоненты
-│   ├── ProductForm.js   # Форма создания продукта
 │   ├── ProductList.js   # Список продуктов
 │   └── CreativeView.js  # Просмотр креатива
 ├── pages/               # Страницы приложения

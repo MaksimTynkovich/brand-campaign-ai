@@ -42,17 +42,6 @@ class ApiService {
     return this.request(`/products/${id}`);
   }
 
-  async createProduct(formData) {
-    return this.request('/products', {
-      method: 'POST',
-      body: formData,
-      headers: {
-        // Не устанавливаем Content-Type для FormData, браузер сделает это сам
-        'Accept': 'application/json',
-      },
-    });
-  }
-
   async updateProduct(id, data) {
     return this.request(`/products/${id}`, {
       method: 'PUT',

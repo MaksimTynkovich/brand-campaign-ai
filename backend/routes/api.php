@@ -30,8 +30,8 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 });
 
-// Products
-Route::apiResource('products', ProductController::class);
+// Products (без store — создание продукта убрано)
+Route::apiResource('products', ProductController::class)->except(['store']);
 
 // Creatives
 Route::apiResource('creatives', CreativeController::class);

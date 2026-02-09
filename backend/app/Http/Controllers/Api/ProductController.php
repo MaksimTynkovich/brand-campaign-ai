@@ -104,41 +104,6 @@ class ProductController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request): JsonResponse
-    {
-        $products = $this->getMockProducts();
-        $lastId = collect($products)->max('id') ?? 0;
-        
-        $imagePaths = [];
-        if ($request->hasFile('images')) {
-            $files = $request->file('images');
-            if (is_array($files)) {
-                foreach ($files as $file) {
-                    $imagePaths[] = 'products/' . $file->getClientOriginalName();
-                }
-            }
-        }
-        
-        $newProduct = [
-            'id' => $lastId + 1,
-            'user_id' => 1,
-            'name' => $request->input('name'),
-            'description' => $request->input('description'),
-            'images' => $imagePaths,
-            'target_audience' => $request->input('target_audience'),
-            'language' => $request->input('language', 'ru'),
-            'ad_angle' => $request->input('ad_angle'),
-            'creatives' => [],
-            'created_at' => now()->toDateTimeString(),
-            'updated_at' => now()->toDateTimeString(),
-        ];
-
-        return response()->json($newProduct, 201);
-    }
-
-    /**
      * Display the specified resource.
      */
     public function show(string $id): JsonResponse
