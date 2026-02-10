@@ -3,64 +3,39 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
-    // Mock users storage (в реальном приложении использовать базу данных)
-    private $users = [];
-
-    public function __construct()
-    {
-        // Инициализируем с тестовым пользователем
-        $this->users = [
-            [
-                'id' => 1,
-                'name' => 'Тестовый Пользователь',
-                'email' => 'test@example.com',
-                'password' => Hash::make('password123'), // password123
-                'created_at' => now()->toIso8601String(),
-            ]
-        ];
-    }
-
     public function register(Request $request)
     {
         $request->validate([
-            'email' => 'required|string|email|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email',
             'password' => 'required|string|min:6',
         ]);
-
-        // Проверяем, существует ли пользователь
-        $existingUser = collect($this->users)->firstWhere('email', $request->email);
-        if ($existingUser) {
-            return response()->json(['message' => 'Пользователь с таким email уже существует'], 422);
-        }
 
         // Извлекаем имя из email (часть до @)
         $name = explode('@', $request->email)[0];
 
-        // Создаем нового пользователя
-        $newUser = [
-            'id' => count($this->users) + 1,
+        // Создаем нового пользователя в БД
+        $user = User::create([
             'name' => ucfirst($name), // Делаем первую букву заглавной
             'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'created_at' => now()->toIso8601String(),
-        ];
+            // каст "hashed" в модели сам захэширует пароль
+            'password' => $request->password,
+        ]);
 
-        $this->users[] = $newUser;
-
-        // Генерируем токен (в реальном приложении использовать Sanctum)
-        $token = Str::random(60);
+        // Генерируем Sanctum-токен
+        $token = $user->createToken('api')->plainTextToken;
 
         return response()->json([
             'user' => [
-                'id' => $newUser['id'],
-                'name' => $newUser['name'],
-                'email' => $newUser['email'],
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
             ],
             'token' => $token,
             'message' => 'Регистрация успешна',
@@ -74,21 +49,21 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        // Находим пользователя
-        $user = collect($this->users)->firstWhere('email', $request->email);
-        
-        if (!$user || !Hash::check($request->password, $user['password'])) {
+        // Находим пользователя в БД
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json(['message' => 'Неверный email или пароль'], 401);
         }
 
-        // Генерируем токен
-        $token = Str::random(60);
+        // Генерируем Sanctum-токен
+        $token = $user->createToken('api')->plainTextToken;
 
         return response()->json([
             'user' => [
-                'id' => $user['id'],
-                'name' => $user['name'],
-                'email' => $user['email'],
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
             ],
             'token' => $token,
             'message' => 'Вход выполнен успешно',
