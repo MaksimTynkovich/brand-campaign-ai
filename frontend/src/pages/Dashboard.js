@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation, Routes, Route } from 'react-router-dom';
+import { useNavigate, Routes, Route } from 'react-router-dom';
 import api from '../services/api';
 import Sidebar from '../components/dashboard/Sidebar';
 import TopBar from '../components/dashboard/TopBar';
 import DashboardHome from '../components/dashboard/DashboardHome';
 import DashboardBilling from '../components/dashboard/DashboardBilling';
-import CreateFromTemplate from './CreateFromTemplate';
 
 function Dashboard() {
   const navigate = useNavigate();
-  const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   useEffect(() => {
@@ -34,7 +32,6 @@ function Dashboard() {
         <main className="flex-1 overflow-y-auto">
           <Routes>
             <Route path="/" element={<DashboardHome />} />
-            <Route path="create" element={<CreateFromTemplate />} />
             <Route path="billing" element={<DashboardBilling />} />
           </Routes>
         </main>

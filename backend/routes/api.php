@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\CreativeController;
 use App\Http\Controllers\Api\GenerationController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\TemplateController;
 
 // Auth routes (public)
 Route::post('/auth/register', [AuthController::class, 'register']);
@@ -35,6 +36,9 @@ Route::apiResource('products', ProductController::class)->except(['store']);
 
 // Creatives
 Route::apiResource('creatives', CreativeController::class);
+
+// Templates
+Route::get('/templates', [TemplateController::class, 'index']);
 
 // Generation
 Route::post('/generation/start', [GenerationController::class, 'start']);

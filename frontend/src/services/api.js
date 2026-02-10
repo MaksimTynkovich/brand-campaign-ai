@@ -64,6 +64,12 @@ class ApiService {
     return this.request(`/creatives/${id}`);
   }
 
+  // Templates
+  async getTemplates() {
+    const res = await this.request('/templates');
+    return res.data || res;
+  }
+
   async downloadVideo(creativeId) {
     const token = localStorage.getItem('auth_token');
     const url = `${API_BASE_URL}/creatives/${creativeId}/download/video`;

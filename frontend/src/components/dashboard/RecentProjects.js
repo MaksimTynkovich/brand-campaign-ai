@@ -15,8 +15,8 @@ function RecentProjects({ projects, onViewAll, onSelectProject }) {
           <Package className="w-10 h-10 text-gray-400 mx-auto mb-3" />
           <p className="text-gray-600 mb-4 text-sm">У вас пока нет проектов</p>
           <button
-            onClick={() => navigate('/dashboard/create')}
-            className="px-5 py-2.5 bg-primary text-white rounded-xl font-semibold hover:bg-primary-hover transition-all duration-200 shadow-lg hover:shadow-xl text-sm"
+            onClick={() => {}}
+            className="px-5 py-2.5 bg-primary text-white rounded-xl font-semibold opacity-60 cursor-not-allowed text-sm"
           >
             Создать первый проект
           </button>
