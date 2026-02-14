@@ -304,54 +304,94 @@ function AppContent() {
               </div>
             </section>
 
-            {/* Testimonials Section */}
+            {/* AI vs Manual Section — две отдельные таблицы, визуально доработаны */}
             <section className="py-24 bg-gray-50">
               <div className="max-w-1140 mx-auto px-6 lg:px-8">
                 <div className="text-center mb-16">
                   <h2 className="text-heading2 text-gray-900 mb-4">
-                    Отзывы наших клиентов
+                    Почему выбирают AI вместо ручной работы
                   </h2>
                   <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                    Узнайте, что говорят о нас маркетологи и создатели контента
+                    Сравните традиционный ручной подход с возможностями генерации с помощью искусственного интеллекта
                   </p>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  {[
-                    {
-                      name: 'Анна Петрова',
-                      role: 'Маркетолог, E-commerce',
-                      text: 'adPilotsAI изменил наш подход к рекламе. Теперь мы создаем десятки креативов за минуты вместо дней. ROAS вырос на 40%!',
-                      rating: 5
-                    },
-                    {
-                      name: 'Дмитрий Соколов',
-                      role: 'Основатель стартапа',
-                      text: 'Невероятно реалистичные видео! Наши клиенты не могут отличить AI-контент от настоящего. Экономия бюджета колоссальная.',
-                      rating: 5
-                    },
-                    {
-                      name: 'Мария Иванова',
-                      role: 'SMM-менеджер',
-                      text: 'Простота использования поражает. Даже без опыта в видеомонтаже я создаю профессиональные ролики. Рекомендую всем!',
-                      rating: 5
-                    },
-                  ].map((testimonial, index) => (
-                    <div key={index} className="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm hover:shadow-xl hover:border-primary transition-all duration-300 transform hover:-translate-y-2">
-                      <div className="flex mb-4">
-                        {[...Array(testimonial.rating)].map((_, i) => (
-                          <svg key={i} className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                          </svg>
-                        ))}
+                {(() => {
+                  const rows = [
+                    { criterion: 'Время', ai: 'Менее 3 минут на один креатив от идеи до готового видео', manual: 'Дни или недели: кастинг, съёмка, монтаж, согласования' },
+                    { criterion: 'Прайс', ai: 'От $29/мес — десятки видео в рамках подписки, без скрытых платежей', manual: 'От $500–2000 за ролик + права, рекламные пакеты, доработки' },
+                    { criterion: 'Масштаб', ai: 'Десятки вариантов в день: разные сценарии, хуки, форматы под тесты', manual: 'Обычно 1–3 варианта за цикл; больше — кратный рост бюджета' },
+                    { criterion: 'Итерации', ai: 'Правки сценария и перегенерация за минуты, без доплат', manual: 'Любая правка — пересъёмка или долгий монтаж, часто за доплату' },
+                    { criterion: 'Языки', ai: '35+ языков: сценарий, озвучка и субтитры из одного интерфейса', manual: 'Отдельный инфлюенсер или дубляж на каждый язык, дороже и дольше' },
+                    { criterion: 'Запуск', ai: 'Старт сразу после регистрации, без договоров и поиска съёмочной команды', manual: 'Поиск инфлюенсера, брифа, контракт, дедлайны, логистика' },
+                  ];
+                  return (
+                    <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] gap-8 lg:gap-6 items-stretch">
+                      {/* Левая карточка — adPilotsAI (в тонах сайта: primary) */}
+                      <div className="group rounded-2xl border-2 border-primary bg-white shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                        <div className="py-5 px-6 border-b border-gray-100 bg-gradient-to-b from-blue-50 to-white">
+                          <div className="flex items-center gap-3">
+                            <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
+                              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                              </svg>
+                            </div>
+                            <div>
+                              <h3 className="text-xl font-bold text-gray-900">Veydo</h3>
+                              <p className="text-sm font-medium text-gray-600">Искусственный интеллект</p>
+                            </div>
+                            <span className="ml-auto text-xs font-semibold text-primary bg-blue-50 px-2.5 py-1 rounded-full">Рекомендуем</span>
+                          </div>
+                        </div>
+                        <table className="w-full">
+                          <tbody className="divide-y divide-gray-100">
+                            {rows.map((row, index) => (
+                              <tr key={index} className="transition-colors hover:bg-blue-50/50">
+                                <td className="py-3.5 pl-6 pr-4 text-sm font-bold text-gray-500 uppercase tracking-wider w-[130px] align-top pt-4">
+                                  {row.criterion}
+                                </td>
+                                <td className="py-3.5 pr-6 pl-0 text-[15px] font-medium text-gray-900 leading-relaxed pt-4">
+                                  {row.ai}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
                       </div>
-                      <p className="text-gray-700 mb-6 leading-relaxed">"{testimonial.text}"</p>
-                      <div>
-                        <div className="font-semibold text-gray-900">{testimonial.name}</div>
-                        <div className="text-sm text-gray-600">{testimonial.role}</div>
+                      {/* Минималистичный разделитель между карточками — только на десктопе */}
+                      <div className="hidden lg:block w-px flex-shrink-0 bg-gray-200 self-stretch" aria-hidden="true" />
+                      {/* Правая карточка — Классическая съёмка (в тонах сайта: серые) */}
+                      <div className="group rounded-2xl border-2 border-gray-200 bg-white shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-gray-300 hover:-translate-y-1">
+                        <div className="py-5 px-6 border-b border-gray-100 bg-gradient-to-b from-gray-50 to-white">
+                          <div className="flex items-center gap-3">
+                            <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gray-400 flex items-center justify-center">
+                              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                              </svg>
+                            </div>
+                            <div>
+                              <h3 className="text-xl font-bold text-gray-900">Классическая съёмка</h3>
+                              <p className="text-sm font-medium text-gray-600">Традиционный способ</p>
+                            </div>
+                          </div>
+                        </div>
+                        <table className="w-full">
+                          <tbody className="divide-y divide-gray-100">
+                            {rows.map((row, index) => (
+                              <tr key={index} className="transition-colors hover:bg-gray-50/80">
+                                <td className="py-3.5 pl-6 pr-4 text-sm font-bold text-gray-500 uppercase tracking-wider w-[130px] align-top pt-4">
+                                  {row.criterion}
+                                </td>
+                                <td className="py-3.5 pr-6 pl-0 text-[15px] font-medium text-gray-700 leading-relaxed pt-4">
+                                  {row.manual}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
                       </div>
                     </div>
-                  ))}
-                </div>
+                  );
+                })()}
               </div>
             </section>
 
