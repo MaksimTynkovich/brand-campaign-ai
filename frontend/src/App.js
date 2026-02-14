@@ -405,18 +405,63 @@ function AppContent() {
               </div>
             </section>
 
-            {/* AI vs Manual Section — две отдельные таблицы, визуально доработаны */}
-            <section className="py-24 bg-gradient-to-b from-slate-50 via-blue-50/30 to-slate-50">
-              <div className="max-w-1140 mx-auto px-6 lg:px-8">
+            {/* AI vs Manual Section — визуально динамичнее, с иконками и эффектами */}
+            <section className="py-24 bg-gradient-to-b from-slate-50 via-blue-50/30 to-slate-50 relative overflow-hidden">
+              {/* Фоновая анимация блёклых иконок */}
+              <div className="pointer-events-none absolute inset-0 select-none z-0">
+                <svg className="absolute top-10 left-[-60px] w-36 h-36 opacity-10 animate-float-slow" fill="none" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="48" stroke="#0EA5E9" strokeWidth="2" />
+                  <circle cx="30" cy="70" r="7" stroke="#0EA5E9" strokeWidth="2" />
+                </svg>
+                <svg className="absolute bottom-0 right-[-40px] w-32 h-32 opacity-10 animate-float-fast" fill="none" viewBox="0 0 100 100">
+                  <rect x="10" y="10" width="80" height="80" rx="20" stroke="#64748B" strokeWidth="2" />
+                </svg>
+              </div>
+              <div className="relative max-w-1140 mx-auto px-6 lg:px-8 z-10">
                 <div className="text-center mb-16">
                   <h2 className="text-heading2 text-gray-900 mb-4">
-                    Почему выбирают AI вместо ручной работы
+                    Почему выбирают нас?
                   </h2>
-                  <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                  <p className="text-lg text-gray-600 max-w-2xl mx-auto">
                     Сравните традиционный ручной подход с возможностями генерации с помощью искусственного интеллекта
                   </p>
                 </div>
                 {(() => {
+                  const iconClass = 'w-5 h-5 flex-shrink-0';
+                  const icons = {
+                    'Время': (
+                      <svg className={iconClass} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    ),
+                    'Прайс': (
+                      <svg className={iconClass} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    ),
+                    'Масштаб': (
+                      <svg className={iconClass} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                      </svg>
+                    ),
+                    'Итерации': (
+                      <svg className={iconClass} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                    ),
+                    'Языки': (
+                      <svg className={iconClass} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
+                      </svg>
+                    ),
+                    'Запуск': (
+                      <svg className={iconClass} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                        <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    ),
+                  };
                   const rows = [
                     { criterion: 'Время', ai: 'Менее 3 минут на один креатив от идеи до готового видео', manual: 'Дни или недели: кастинг, съёмка, монтаж, согласования' },
                     { criterion: 'Прайс', ai: 'От $29/мес — десятки видео в рамках подписки, без скрытых платежей', manual: 'От $500–2000 за ролик + права, рекламные пакеты, доработки' },
@@ -425,75 +470,100 @@ function AppContent() {
                     { criterion: 'Языки', ai: '35+ языков: сценарий, озвучка и субтитры из одного интерфейса', manual: 'Отдельный инфлюенсер или дубляж на каждый язык, дороже и дольше' },
                     { criterion: 'Запуск', ai: 'Старт сразу после регистрации, без договоров и поиска съёмочной команды', manual: 'Поиск инфлюенсера, брифа, контракт, дедлайны, логистика' },
                   ];
+                  // Анимировать таблицы поочерёдно через delay на transition
                   return (
-                    <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] gap-8 lg:gap-6 items-stretch">
-                      {/* Левая карточка — adPilotsAI (в тонах сайта: primary) */}
-                      <div className="group rounded-2xl border-2 border-primary bg-white shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-                        <div className="py-5 px-6 border-b border-gray-100 bg-gradient-to-b from-blue-50 to-white">
+                    <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] gap-8 lg:gap-6 items-stretch relative">
+                      {/* Левая карточка — adPilotsAI */}
+                      <div className="group rounded-2xl border-2 border-primary bg-white shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-primary/80">
+                        <div className="py-4 px-5 border-b border-gray-100 bg-gradient-to-b from-blue-50 to-white">
                           <div className="flex items-center gap-3">
-                            <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-                              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                              </svg>
+                            <div className="flex-shrink-0 w-9 h-9 rounded-xl bg-primary flex items-center justify-center">
+                              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                             </div>
                             <div>
-                              <h3 className="text-xl font-bold text-gray-900">adPilotsAI</h3>
-                              <p className="text-sm font-medium text-gray-600">Наш сервис</p>
+                              <h3 className="text-lg font-bold text-gray-900">adPilotsAI</h3>
+                              <p className="text-xs font-medium text-gray-600">AI генерация</p>
                             </div>
-                            <span className="ml-auto text-xs font-semibold text-primary bg-blue-50 px-2.5 py-1 rounded-full">Рекомендуем</span>
+                            <span className="ml-auto text-xs font-semibold text-primary bg-blue-50 px-2 py-0.5 rounded-full">Рекомендуем</span>
                           </div>
                         </div>
+                        {/* ТАБЛИЦА */}
                         <table className="w-full">
                           <tbody className="divide-y divide-gray-100">
                             {rows.map((row, index) => (
-                              <tr key={index} className="transition-colors hover:bg-blue-50/50">
-                                <td className="py-3.5 pl-6 pr-4 text-sm font-bold text-gray-500 uppercase tracking-wider w-[130px] align-top pt-4">
-                                  {row.criterion}
+                              <tr key={index} className="hover:bg-blue-50/50 transition-colors">
+                                <td className="py-3 px-5 w-[130px] align-middle">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-primary">{icons[row.criterion]}</span>
+                                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{row.criterion}</span>
+                                  </div>
                                 </td>
-                                <td className="py-3.5 pr-6 pl-0 text-[15px] font-medium text-gray-900 leading-relaxed pt-4">
+                                <td className="py-3 pr-5 pl-2 text-sm text-gray-800 leading-relaxed align-middle">
                                   {row.ai}
                                 </td>
                               </tr>
                             ))}
                           </tbody>
                         </table>
+                        {/* небольшой акцент снизу */}
+                        <div className="h-1 w-full bg-gradient-to-r from-primary/70 via-blue-300/40 to-blue-50/0"></div>
                       </div>
-                      {/* Минималистичный разделитель между карточками — только на десктопе */}
-                      <div className="hidden lg:block w-px flex-shrink-0 bg-gray-200 self-stretch" aria-hidden="true" />
-                      {/* Правая карточка — Классическая съёмка (в тонах сайта: серые) */}
-                      <div className="group rounded-2xl border-2 border-gray-200 bg-white shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-gray-300 hover:-translate-y-1">
-                        <div className="py-5 px-6 border-b border-gray-100 bg-gradient-to-b from-gray-50 to-white">
+                      {/* Минималистичный разделитель */}
+                      <div className="hidden lg:flex flex-col items-center justify-center">
+                        <div className="w-px h-full relative bg-gradient-to-b from-blue-200/60 via-gray-200/80 to-gray-100/0" aria-hidden="true">
+                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-br from-blue-400 to-primary rounded-full w-7 h-7 opacity-70 animate-pulse shadow-lg border-2 border-white" />
+                        </div>
+                      </div>
+                      {/* Правая карточка — Классическая съёмка */}
+                      <div className="group rounded-2xl border-2 border-gray-200 bg-white shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-gray-300">
+                        <div className="py-4 px-5 border-b border-gray-100 bg-gradient-to-b from-gray-50 to-white">
                           <div className="flex items-center gap-3">
-                            <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gray-400 flex items-center justify-center">
-                              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                              </svg>
+                            <div className="flex-shrink-0 w-9 h-9 rounded-xl bg-gray-400 flex items-center justify-center">
+                              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
                             </div>
                             <div>
-                              <h3 className="text-xl font-bold text-gray-900">Классическая съёмка</h3>
-                              <p className="text-sm font-medium text-gray-600">Традиционный способ</p>
+                              <h3 className="text-lg font-bold text-gray-900">Классическая съёмка</h3>
+                              <p className="text-xs font-medium text-gray-600">Традиционный способ</p>
                             </div>
                           </div>
                         </div>
+                        {/* ТАБЛИЦА */}
                         <table className="w-full">
                           <tbody className="divide-y divide-gray-100">
                             {rows.map((row, index) => (
-                              <tr key={index} className="transition-colors hover:bg-gray-50/80">
-                                <td className="py-3.5 pl-6 pr-4 text-sm font-bold text-gray-500 uppercase tracking-wider w-[130px] align-top pt-4">
-                                  {row.criterion}
+                              <tr key={index} className="hover:bg-gray-50/80 transition-colors">
+                                <td className="py-3 px-5 w-[130px] align-middle">
+                                  <div className="flex items-center gap-2">
+                                    <span className="inline-flex text-gray-400">{icons[row.criterion]}</span>
+                                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{row.criterion}</span>
+                                  </div>
                                 </td>
-                                <td className="py-3.5 pr-6 pl-0 text-[15px] font-medium text-gray-700 leading-relaxed pt-4">
+                                <td className="py-3 pr-5 pl-2 text-sm text-gray-700 leading-relaxed align-middle">
                                   {row.manual}
                                 </td>
                               </tr>
                             ))}
                           </tbody>
                         </table>
+                        {/* акцент снизу */}
+                        <div className="h-1 w-full bg-gradient-to-r from-gray-300 via-gray-50 to-transparent"></div>
                       </div>
                     </div>
                   );
                 })()}
               </div>
+
+              {/* Анимации (вставить с tailwind.config) */}
+              <style>{`
+                @keyframes float-slow { 0%{transform:translateY(0);} 50%{transform:translateY(18px);} 100%{transform:translateY(0);} }
+                @keyframes float-fast { 0%{transform:translateY(0);} 50%{transform:translateY(-12px);} 100%{transform:translateY(0);} }
+                .animate-float-slow { animation: float-slow 9s ease-in-out infinite;}
+                .animate-float-fast { animation: float-fast 5.5s ease-in-out infinite;}
+                .animate-fade-in { opacity: 0; animation: fadeIn .7s .15s forwards; }
+                .animate-fade-in-up { opacity: 0; transform: translateY(18px); animation: fadeInUp .7s .18s both; }
+                @keyframes fadeIn { to { opacity: 1; } }
+                @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+              `}</style>
             </section>
 
             {/* Pricing Section */}
