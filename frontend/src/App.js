@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useParams } 
 import ProductPage from './pages/ProductPage';
 import AuthPage from './pages/AuthPage';
 import Dashboard from './pages/Dashboard';
+import LegalPage from './pages/LegalPage';
 import VideoCarousel from './components/VideoCarousel';
 import Sparkles from './assets/icons/Sparkles';
 import Package from './assets/icons/Package';
@@ -15,6 +16,7 @@ import api from './services/api';
 function AppContent() {
   const [billingPeriod, setBillingPeriod] = useState('month'); // 'month' or 'year'
   const [openFaq, setOpenFaq] = useState(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   // Обработчик плавной прокрутки для якорных ссылок
@@ -56,9 +58,18 @@ function AppContent() {
     navigate('/dashboard');
   };
 
+  const scrollToDemo = () => {
+    const el = document.getElementById('demo');
+    if (el) {
+      const headerOffset = 80;
+      const top = el.getBoundingClientRect().top + window.pageYOffset - headerOffset;
+      window.scrollTo({ top, behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white">
-      <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
+      <header className="sticky top-0 z-50 bg-white border-b border-gray-200 relative">
         <div className="max-w-1140 mx-auto px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
@@ -75,20 +86,36 @@ function AppContent() {
               <span className="text-xl font-bold text-gray-900 tracking-tight">ADPILOTSAI</span>
             </a>
 
-            {/* Navigation Links */}
+            {/* Navigation Links — десктоп */}
             <nav className="hidden md:flex items-center gap-8">
               <a href="#demo" className="text-gray-700 hover:text-gray-900 font-medium transition-colors">
                 Демо
               </a>
-              <div className="relative group">
-                <a href="#features" className="flex items-center gap-1 text-gray-700 hover:text-gray-900 font-medium transition-colors">
-                  Функции
-                </a>
-              </div>
+              <a href="#features" className="text-gray-700 hover:text-gray-900 font-medium transition-colors">
+                Функции
+              </a>
               <a href="#pricing" className="text-gray-700 hover:text-gray-900 font-medium transition-colors">
                 Тарифы
               </a>
             </nav>
+
+            {/* Бургер — мобильный */}
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen((v) => !v)}
+              className="md:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+              aria-label="Меню"
+            >
+              {mobileMenuOpen ? (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              )}
+            </button>
 
             {/* Right Side Actions */}
             <div className="flex items-center gap-4">
@@ -110,21 +137,59 @@ function AppContent() {
             </div>
           </div>
         </div>
+        {/* Мобильное меню — выезжающая панель */}
+        {mobileMenuOpen && (
+          <div className="md:hidden absolute top-full left-0 right-0 bg-white border-b border-gray-200 shadow-lg">
+            <nav className="flex flex-col py-4 px-6 gap-1">
+              <a
+                href="#demo"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-3 px-4 rounded-xl text-gray-700 hover:bg-gray-100 hover:text-gray-900 font-medium"
+              >
+                Демо
+              </a>
+              <a
+                href="#features"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-3 px-4 rounded-xl text-gray-700 hover:bg-gray-100 hover:text-gray-900 font-medium"
+              >
+                Функции
+              </a>
+              <a
+                href="#pricing"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-3 px-4 rounded-xl text-gray-700 hover:bg-gray-100 hover:text-gray-900 font-medium"
+              >
+                Тарифы
+              </a>
+            </nav>
+          </div>
+        )}
       </header>
 
       <main>
         <>
             {/* Hero Section */}
-            <section className="relative pt-24 pb-8 overflow-hidden">
-              <div className="max-w-1140 mx-auto px-6 lg:px-8">
+            <section className="relative pt-24 pb-8 overflow-hidden bg-mesh">
+              {/* Декоративные градиентные круги */}
+              <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+                <div className="absolute -top-24 -right-24 w-96 h-96 bg-primary/20 rounded-full blur-3xl animate-float" />
+                <div className="absolute top-1/2 -left-32 w-80 h-80 bg-blue-400/15 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
+                <div className="absolute bottom-0 right-1/3 w-64 h-64 bg-indigo-400/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '4s' }} />
+              </div>
+              <div className="max-w-1140 mx-auto px-6 lg:px-8 relative">
                 <div className="max-w-4xl mx-auto text-center">
+                  <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-8">
+                    <Sparkles className="w-4 h-4" />
+                    Бесплатный старт — без карты
+                  </span>
                   <h1 className="text-heading1 text-gray-900 mb-6">
                     Создавайте рекламу <br className="hidden md:block" />
                     <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
                       через AI
                     </span>
                   </h1>
-                  <p className="text-xl md:text-2xl text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed">
+                  <p className="text-xl md:text-2xl text-gray-600 mb-4 max-w-2xl mx-auto leading-relaxed">
                     Генерируйте реалистичные видео в стиле инфлюенсеров, где AI-аватары держат и рассказывают о ваших продуктах. Готово для TikTok, Reels и Meta рекламы менее чем за 3 минуты.
                   </p>
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -132,9 +197,12 @@ function AppContent() {
                       onClick={handlePrimaryCta}
                       className="px-8 py-4 bg-primary text-white rounded-2xl font-semibold text-lg hover:bg-primary-hover transition-all duration-200 shadow-xl hover:shadow-2xl hover:-translate-y-0.5"
                     >
-                      Создать первое видео
+                      Попробовать бесплатно
                     </button>
-                    <button className="px-8 py-4 bg-white text-gray-900 border-2 border-gray-200 rounded-2xl font-semibold text-lg hover:border-gray-300 transition-all duration-200 flex items-center gap-2">
+                    <button
+                      onClick={scrollToDemo}
+                      className="px-8 py-4 bg-white text-gray-900 border-2 border-gray-200 rounded-2xl font-semibold text-lg hover:border-gray-300 transition-all duration-200 flex items-center gap-2"
+                    >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -146,31 +214,52 @@ function AppContent() {
               </div>
             </section>
 
-            {/* Video Carousel */}
-            <VideoCarousel />
+            {/* Video Carousel — блок демо: готовая библиотека шаблонов */}
+            <section id="demo" className="scroll-mt-20 py-20 bg-slate-50">
+              <div className="max-w-1140 mx-auto px-6 lg:px-8">
+                <div className="text-center mb-12">
+                  <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-3">
+                    Сотни готовых шаблонов
+                  </h2>
+                  <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Выберите креатив и получите своё видео. Без съёмок, без монтажа.
+                  </p>
+                </div>
+              </div>
+              <VideoCarousel />
+            </section>
 
             {/* Stats Section */}
-            <section className="py-16 bg-white border-y border-gray-100">
+            <section className="py-16 bg-gradient-to-r from-primary/5 via-blue-50 to-indigo-50 border-y border-blue-100/80">
               <div className="max-w-1140 mx-auto px-6 lg:px-8">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                   <div className="text-center">
-                    <div className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">10k+</div>
-                    <div className="text-gray-600">Активных пользователей</div>
+                    <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-white/80 shadow-md text-primary mb-4 ring-2 ring-primary/10">
+                      <Video className="w-7 h-7" />
+                    </div>
+                    <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent mb-2">Тысячи</div>
+                    <div className="text-gray-600">креативов уже созданы</div>
                   </div>
-                  <div className="text-center border-x border-gray-200 px-8">
-                    <div className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">2.5мин</div>
-                    <div className="text-gray-600">Среднее время генерации</div>
+                  <div className="text-center border-x border-blue-200/60 px-8">
+                    <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-white/80 shadow-md text-primary mb-4 ring-2 ring-primary/10">
+                      <Lightning className="w-7 h-7" />
+                    </div>
+                    <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent mb-2">2.5 мин</div>
+                    <div className="text-gray-600">среднее время генерации</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">$1M+</div>
-                    <div className="text-gray-600">Сгенерировано с AI UGC</div>
+                    <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-white/80 shadow-md text-primary mb-4 ring-2 ring-primary/10">
+                      <Globe className="w-7 h-7" />
+                    </div>
+                    <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent mb-2">35+</div>
+                    <div className="text-gray-600">языков для глобальной рекламы</div>
                   </div>
                 </div>
               </div>
             </section>
 
             {/* 3 Steps Section */}
-            <section className="py-24 bg-white">
+            <section className="py-24 bg-mesh-warm">
               <div className="max-w-1140 mx-auto px-6 lg:px-8">
                 <div className="text-center mb-16">
                   <h2 className="text-heading2 text-gray-900 mb-4">
@@ -181,22 +270,28 @@ function AppContent() {
                   </p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  <div className="bg-white rounded-2xl p-8 border border-gray-200 hover:shadow-xl hover:border-primary transition-all duration-300 transform hover:-translate-y-1 cursor-pointer">
-                    <div className="text-sm font-semibold text-primary mb-4">Шаг 1</div>
+                  <div className="bg-white rounded-2xl p-8 border border-gray-200 hover:shadow-xl hover:border-primary transition-all duration-300 transform hover:-translate-y-1 cursor-pointer shadow-sm">
+                    <div className="flex items-center gap-3 mb-6">
+                      <span className="flex items-center justify-center w-12 h-12 rounded-xl bg-primary text-white font-bold text-lg">1</span>
+                    </div>
                     <h3 className="text-heading4 text-gray-900 mb-4">Добавьте Ваш Продукт</h3>
                     <p className="text-gray-600 leading-relaxed">
                       Загрузите изображения продукта, добавьте описание и укажите целевую аудиторию. Наш AI идеально поймет ваш продукт.
                     </p>
                   </div>
-                  <div className="bg-white rounded-2xl p-8 border border-gray-200 hover:shadow-xl hover:border-primary transition-all duration-300 transform hover:-translate-y-1 cursor-pointer">
-                    <div className="text-sm font-semibold text-primary mb-4">Шаг 2</div>
+                  <div className="bg-white rounded-2xl p-8 border border-gray-200 hover:shadow-xl hover:border-primary transition-all duration-300 transform hover:-translate-y-1 cursor-pointer shadow-sm">
+                    <div className="flex items-center gap-3 mb-6">
+                      <span className="flex items-center justify-center w-12 h-12 rounded-xl bg-primary text-white font-bold text-lg">2</span>
+                    </div>
                     <h3 className="text-heading4 text-gray-900 mb-4">AI Генерирует Сценарий</h3>
                     <p className="text-gray-600 leading-relaxed">
                       Превратите идеи в готовые к съемке рекламные ролики с помощью умного AI-письма. Получите хуки, видео-сценарий, подпись и CTA автоматически.
                     </p>
                   </div>
-                  <div className="bg-white rounded-2xl p-8 border border-gray-200 hover:shadow-xl hover:border-primary transition-all duration-300 transform hover:-translate-y-1 cursor-pointer">
-                    <div className="text-sm font-semibold text-primary mb-4">Шаг 3</div>
+                  <div className="bg-white rounded-2xl p-8 border border-gray-200 hover:shadow-xl hover:border-primary transition-all duration-300 transform hover:-translate-y-1 cursor-pointer shadow-sm">
+                    <div className="flex items-center gap-3 mb-6">
+                      <span className="flex items-center justify-center w-12 h-12 rounded-xl bg-primary text-white font-bold text-lg">3</span>
+                    </div>
                     <h3 className="text-heading4 text-gray-900 mb-4">Сгенерируйте Видео</h3>
                     <p className="text-gray-600 leading-relaxed">
                       Воплотите все в жизнь с потрясающим, реалистичным UGC-видео за минуты. Готово для TikTok, Reels и Meta рекламы.
@@ -207,8 +302,8 @@ function AppContent() {
             </section>
 
             {/* Features Section */}
-            <section id="features" className="py-24 bg-gray-50 scroll-mt-20">
-              <div className="max-w-1140 mx-auto px-6 lg:px-8">
+            <section id="features" className="py-24 bg-gray-50 scroll-mt-20 bg-mesh">
+              <div className="max-w-1140 mx-auto px-6 lg:px-8 relative">
                 <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-16 gap-8">
                   <div className="max-w-2xl">
                     <h2 className="text-heading2 text-gray-900 mb-4">
@@ -277,7 +372,7 @@ function AppContent() {
             </section>
 
             {/* Popular Features Section */}
-            <section className="py-24 bg-white">
+            <section className="py-24 bg-mesh-rich">
               <div className="max-w-1140 mx-auto px-6 lg:px-8">
                 <div className="text-center mb-16">
                   <h2 className="text-heading2 text-gray-900 mb-4">
@@ -289,23 +384,29 @@ function AppContent() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   {[
-                    { title: 'AI Сценарии', count: '95%', desc: 'используют' },
-                    { title: 'UGC Видео', count: '87%', desc: 'создают' },
-                    { title: 'Мультиязычность', count: '72%', desc: 'применяют' },
-                    { title: 'Быстрая генерация', count: '98%', desc: 'довольны' },
-                  ].map((item, index) => (
-                    <div key={index} className="bg-gray-50 rounded-2xl p-6 border border-gray-200 text-center hover:bg-white hover:border-primary hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 cursor-pointer">
-                      <div className="text-4xl font-bold text-primary mb-2 transition-transform duration-300 hover:scale-110">{item.count}</div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-1">{item.title}</h3>
-                      <p className="text-gray-600 text-sm">{item.desc}</p>
-                    </div>
-                  ))}
+                    { title: 'AI Сценарии', count: '95%', desc: 'используют', Icon: Sparkles },
+                    { title: 'UGC Видео', count: '87%', desc: 'создают', Icon: Video },
+                    { title: 'Мультиязычность', count: '72%', desc: 'применяют', Icon: Globe },
+                    { title: 'Быстрая генерация', count: '98%', desc: 'довольны', Icon: Lightning },
+                  ].map((item, index) => {
+                    const IconComp = item.Icon;
+                    return (
+                      <div key={index} className="bg-white/90 backdrop-blur rounded-2xl p-6 border border-gray-200 text-center hover:bg-white hover:border-primary hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 cursor-pointer shadow-sm">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/15 text-primary mb-4 ring-2 ring-primary/20">
+                        <IconComp className="w-6 h-6" />
+                      </div>
+                      <div className="text-4xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent mb-2 transition-transform duration-300 hover:scale-110">{item.count}</div>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-1">{item.title}</h3>
+                        <p className="text-gray-600 text-sm">{item.desc}</p>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </section>
 
             {/* AI vs Manual Section — две отдельные таблицы, визуально доработаны */}
-            <section className="py-24 bg-gray-50">
+            <section className="py-24 bg-gradient-to-b from-slate-50 via-blue-50/30 to-slate-50">
               <div className="max-w-1140 mx-auto px-6 lg:px-8">
                 <div className="text-center mb-16">
                   <h2 className="text-heading2 text-gray-900 mb-4">
@@ -336,8 +437,8 @@ function AppContent() {
                               </svg>
                             </div>
                             <div>
-                              <h3 className="text-xl font-bold text-gray-900">Veydo</h3>
-                              <p className="text-sm font-medium text-gray-600">Искусственный интеллект</p>
+                              <h3 className="text-xl font-bold text-gray-900">adPilotsAI</h3>
+                              <p className="text-sm font-medium text-gray-600">Наш сервис</p>
                             </div>
                             <span className="ml-auto text-xs font-semibold text-primary bg-blue-50 px-2.5 py-1 rounded-full">Рекомендуем</span>
                           </div>
@@ -398,129 +499,133 @@ function AppContent() {
             {/* Pricing Section */}
             <section id="pricing" className="py-24 bg-white scroll-mt-20">
               <div className="max-w-1140 mx-auto px-6 lg:px-8">
-                <div className="text-center mb-16">
+                <div className="text-center mb-14">
                   <h2 className="text-heading2 text-gray-900 mb-4">
-                    Тарифы
+                    Сколько стоит
                   </h2>
                   <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
-                    Выберите план, который подходит именно вам
+                    Во всех планах — генерация видео, шаблоны, AI-сценарии, качество и поддержка. Меняется только объём генерации.
                   </p>
-                  <div className="flex items-center justify-center gap-4">
+                  <div className="inline-flex items-center gap-1 p-1.5 bg-gray-100 rounded-xl">
                     <button
                       onClick={() => setBillingPeriod('month')}
-                      className={`px-6 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 ${
+                      className={`px-5 py-2.5 rounded-lg font-semibold text-sm transition-all ${
                         billingPeriod === 'month'
-                          ? 'bg-primary text-white shadow-lg'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          ? 'bg-white text-gray-900 shadow-sm'
+                          : 'text-gray-600 hover:text-gray-900'
                       }`}
                     >
                       Месяц
                     </button>
                     <button
                       onClick={() => setBillingPeriod('year')}
-                      className={`px-6 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 ${
+                      className={`px-5 py-2.5 rounded-lg font-semibold text-sm transition-all flex items-center gap-2 ${
                         billingPeriod === 'year'
-                          ? 'bg-primary text-white shadow-lg'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          ? 'bg-white text-gray-900 shadow-sm'
+                          : 'text-gray-600 hover:text-gray-900'
                       }`}
                     >
                       Год
-                      <span className="ml-2 text-sm bg-green-100 text-green-700 px-2 py-0.5 rounded">-20%</span>
+                      <span className="text-xs font-medium text-green-600 bg-green-100 px-1.5 py-0.5 rounded">−20%</span>
                     </button>
                   </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
                   {[
                     {
                       name: 'Старт',
+                      desc: 'Попробовать сервис и сделать первые креативы',
                       monthPrice: 29,
                       yearPrice: 23,
-                      features: [
-                        '10 видео в месяц',
-                        'Базовые шаблоны',
-                        '1 язык',
-                        'Поддержка по email',
-                      ],
+                      videos: 10,
                       popular: false
                     },
                     {
                       name: 'Профессионал',
+                      desc: 'Для регулярной рекламы и большего объёма',
                       monthPrice: 99,
                       yearPrice: 79,
-                      features: [
-                        '100 видео в месяц',
-                        'Все шаблоны',
-                        '35+ языков',
-                        'Приоритетная поддержка',
-                        'API доступ',
-                      ],
+                      videos: 100,
                       popular: true
                     },
                     {
                       name: 'Бизнес',
+                      desc: 'Для команд и высокого объёма генерации',
                       monthPrice: 299,
                       yearPrice: 239,
-                      features: [
-                        'Безлимит видео',
-                        'Все функции',
-                        'Все языки',
-                        'Персональный менеджер',
-                        'API доступ',
-                        'Кастомные интеграции',
-                      ],
+                      videos: null,
                       popular: false
                     },
                   ].map((plan, index) => {
                     const price = billingPeriod === 'month' ? plan.monthPrice : plan.yearPrice;
+                    const savings = billingPeriod === 'year' ? plan.monthPrice * 12 - plan.yearPrice * 12 : 0;
                     return (
                       <div
                         key={index}
-                        className={`bg-white rounded-2xl p-8 border-2 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl ${
+                        className={`relative rounded-2xl p-6 md:p-8 transition-all duration-300 hover:shadow-xl ${
                           plan.popular
-                            ? 'border-primary shadow-xl scale-105'
-                            : 'border-gray-200 hover:border-primary'
-                        } relative`}
+                            ? 'bg-primary text-white shadow-xl ring-4 ring-primary/20'
+                            : 'bg-gray-50 border border-gray-200 hover:border-gray-300 hover:bg-white'
+                        }`}
                       >
                         {plan.popular && (
-                          <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-primary text-white px-4 py-1 rounded-full text-sm font-semibold">
-                            Популярный
-                          </div>
+                            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white text-primary px-3 py-1 rounded-full text-xs font-bold shadow">
+                              Чаще всего выбирают
+                            </div>
                         )}
-                        <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
                         <div className="mb-6">
-                          <span className="text-4xl font-bold text-gray-900">${price}</span>
-                          <span className="text-gray-600">/{billingPeriod === 'month' ? 'мес' : 'год'}</span>
+                          <h3 className={`text-xl font-bold mb-1 ${plan.popular ? 'text-white' : 'text-gray-900'}`}>{plan.name}</h3>
+                          <p className={`text-sm ${plan.popular ? 'text-blue-100' : 'text-gray-500'}`}>{plan.desc}</p>
                         </div>
-                        <ul className="space-y-4 mb-8">
-                          {plan.features.map((feature, i) => (
-                            <li key={i} className="flex items-start gap-3">
-                              <Checkmark className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                              <span className="text-gray-700">{feature}</span>
+                        <div className="mb-6">
+                          <span className={`text-4xl font-extrabold tracking-tight ${plan.popular ? 'text-white' : 'text-gray-900'}`}>${price}</span>
+                          <span className={plan.popular ? 'text-blue-200' : 'text-gray-500'}>/{billingPeriod === 'month' ? 'мес' : 'мес'}</span>
+                          {billingPeriod === 'year' && savings > 0 && (
+                            <p className={`text-sm mt-1 ${plan.popular ? 'text-blue-100' : 'text-green-600'}`}>
+                              Выгода ${savings} в год
+                            </p>
+                          )}
+                        </div>
+                        <p className={`text-sm font-semibold mb-4 ${plan.popular ? 'text-blue-100' : 'text-gray-600'}`}>
+                          {plan.videos ? `${plan.videos} видео в месяц` : 'Безлимит видео'}
+                        </p>
+                        <ul className="space-y-2.5 mb-8 text-sm">
+                          {[
+                            'Генерация видео',
+                            'Готовые шаблоны',
+                            'AI-сценарии и хуки',
+                            'Качественное видео',
+                            'Разные языки',
+                            'Поддержка',
+                          ].map((feature, i) => (
+                            <li key={i} className="flex items-start gap-2.5">
+                              <Checkmark className={`w-5 h-5 flex-shrink-0 mt-0.5 ${plan.popular ? 'text-blue-200' : 'text-green-500'}`} />
+                              <span className={plan.popular ? 'text-blue-50' : 'text-gray-700'}>{feature}</span>
                             </li>
                           ))}
                         </ul>
                         {api.isAuthenticated() ? (
                           <Link
                             to="/dashboard/billing"
-                            className={`block w-full py-3 rounded-xl font-semibold transition-all text-center ${
+                            className={`block w-full py-3 rounded-xl font-semibold text-center transition-all ${
                               plan.popular
-                                ? 'bg-primary text-white hover:bg-primary-hover shadow-lg hover:shadow-xl'
-                                : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                                ? 'bg-white text-primary hover:bg-blue-50 shadow'
+                                : 'bg-gray-900 text-white hover:bg-gray-800'
                             }`}
                           >
-                            Оплатить
+                            Оформить подписку
                           </Link>
                         ) : (
                           <button
                             type="button"
-                            onClick={() => navigate('/login')}
+                            onClick={() => navigate('/register')}
                             className={`w-full py-3 rounded-xl font-semibold transition-all ${
                               plan.popular
-                                ? 'bg-primary text-white hover:bg-primary-hover shadow-lg hover:shadow-xl'
-                                : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                                ? 'bg-white text-primary hover:bg-blue-50 shadow'
+                                : 'bg-gray-900 text-white hover:bg-gray-800'
                             }`}
                           >
-                            Войти для оплаты
+                            Попробовать
                           </button>
                         )}
                       </div>
@@ -531,7 +636,7 @@ function AppContent() {
             </section>
 
             {/* FAQ Section */}
-            <section className="py-24 bg-gray-50">
+            <section className="py-24 bg-gray-50 bg-mesh">
               <div className="max-w-3xl mx-auto px-6 lg:px-8">
                 <div className="text-center mb-16">
                   <h2 className="text-heading2 text-gray-900 mb-4">
@@ -604,8 +709,12 @@ function AppContent() {
             </section>
 
             {/* CTA Section */}
-            <section className="py-24 bg-gradient-to-br from-primary to-blue-600 text-white">
-              <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
+            <section className="py-24 relative bg-gradient-to-br from-primary via-blue-600 to-indigo-600 text-white overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-white/10 pointer-events-none" aria-hidden="true" />
+              <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center relative">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/20 backdrop-blur mb-6">
+                  <Video className="w-8 h-8 text-white" />
+                </div>
                 <h2 className="text-heading2 text-white mb-6">
                   Готовы создать свое первое AI-видео?
                 </h2>
@@ -619,7 +728,10 @@ function AppContent() {
                   >
                     Создать первое видео бесплатно
                   </button>
-                  <button className="px-8 py-4 bg-transparent text-white border-2 border-white rounded-2xl font-semibold text-lg hover:bg-white/10 transition-all duration-200">
+                  <button
+                    onClick={scrollToDemo}
+                    className="px-8 py-4 bg-transparent text-white border-2 border-white rounded-2xl font-semibold text-lg hover:bg-white/10 transition-all duration-200"
+                  >
                     Посмотреть демо
                   </button>
                 </div>
@@ -633,7 +745,8 @@ function AppContent() {
       </main>
 
       {/* Footer — кратко о продукте + ссылки */}
-      <footer className="bg-gray-900 text-gray-400 border-t border-gray-800">
+      <footer className="bg-gray-900 text-gray-400 border-t border-gray-800 relative">
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" aria-hidden="true" />
         <div className="max-w-1140 mx-auto px-6 lg:px-8 py-8">
           <p className="text-center text-sm text-gray-500 max-w-xl mx-auto mb-6">
             AI‑реклама нового поколения — запускай и смотри, как лиды летят к тебе! Вирально, мощно, именно то, что нужно для роста.
@@ -641,11 +754,11 @@ function AppContent() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-sm">
             <span>© {new Date().getFullYear()} adPilotsAI</span>
             <span className="hidden sm:inline text-gray-600">·</span>
-            <a href="#" className="hover:text-primary transition-colors">Политика конфиденциальности</a>
+            <Link to="/privacy" className="hover:text-primary transition-colors">Политика конфиденциальности</Link>
             <span className="hidden sm:inline text-gray-600">·</span>
             <a href="mailto:hello@adpilotsai.com" className="hover:text-primary transition-colors">hello@adpilotsai.com</a>
             <span className="hidden sm:inline text-gray-600">·</span>
-            <a href="#" className="hover:text-primary transition-colors">Условия использования</a>
+            <Link to="/terms" className="hover:text-primary transition-colors">Условия использования</Link>
           </div>
         </div>
       </footer>
@@ -667,6 +780,8 @@ function App() {
         <Route path="/login" element={<AuthPage mode="login" />} />
         <Route path="/register" element={<AuthPage mode="register" />} />
         <Route path="/dashboard/*" element={<Dashboard />} />
+        <Route path="/privacy" element={<LegalPage type="privacy" />} />
+        <Route path="/terms" element={<LegalPage type="terms" />} />
       </Routes>
     </Router>
   );

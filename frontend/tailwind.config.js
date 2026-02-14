@@ -32,9 +32,27 @@ module.exports = {
           '0%': { transform: 'translateX(0)' },
           '100%': { transform: 'translateX(-33.333%)' },
         },
+        float: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-12px)' },
+        },
+        'fade-in-up': {
+          '0%': { opacity: '0', transform: 'translateY(12px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
       },
       animation: {
         'infinite-scroll': 'infinite-scroll 10s linear infinite',
+        'float': 'float 8s ease-in-out infinite',
+        'fade-in-up': 'fade-in-up 0.6s ease-out forwards',
+      },
+      backgroundImage: {
+        'grid-pattern': 'linear-gradient(to right, rgb(0 0 0 / 0.03) 1px, transparent 1px), linear-gradient(to bottom, rgb(0 0 0 / 0.03) 1px, transparent 1px)',
+        'dot-pattern': 'radial-gradient(circle, rgb(0 0 0 / 0.06) 1px, transparent 1px)',
+      },
+      backgroundSize: {
+        'grid': '32px 32px',
+        'dots': '24px 24px',
       },
     },
   },
