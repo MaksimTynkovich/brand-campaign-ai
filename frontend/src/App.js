@@ -501,10 +501,10 @@ function AppContent() {
               <div className="max-w-1140 mx-auto px-6 lg:px-8">
                 <div className="text-center mb-14">
                   <h2 className="text-heading2 text-gray-900 mb-4">
-                    Сколько стоит
+                    Сколько это стоит?
                   </h2>
                   <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
-                    Во всех планах — генерация видео, шаблоны, AI-сценарии, качество и поддержка. Меняется только объём генерации.
+                    Подберите подходящий тариф и начните создавать рекламные ролики за считанные минуты.
                   </p>
                   <div className="inline-flex items-center gap-1 p-1.5 bg-gray-100 rounded-xl">
                     <button
@@ -535,25 +535,25 @@ function AppContent() {
                     {
                       name: 'Старт',
                       desc: 'Попробовать сервис и сделать первые креативы',
-                      monthPrice: 29,
-                      yearPrice: 23,
-                      videos: 10,
+                      monthPrice: 39,
+                      yearPrice: 31,
+                      videos: 15,
                       popular: false
                     },
                     {
                       name: 'Профессионал',
                       desc: 'Для регулярной рекламы и большего объёма',
-                      monthPrice: 99,
-                      yearPrice: 79,
-                      videos: 100,
+                      monthPrice: 79,
+                      yearPrice: 63,
+                      videos: 40,
                       popular: true
                     },
                     {
                       name: 'Бизнес',
                       desc: 'Для команд и высокого объёма генерации',
-                      monthPrice: 299,
-                      yearPrice: 239,
-                      videos: null,
+                      monthPrice: 149,
+                      yearPrice: 119,
+                      videos: 100,
                       popular: false
                     },
                   ].map((plan, index) => {
