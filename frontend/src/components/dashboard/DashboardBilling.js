@@ -20,7 +20,7 @@ function DashboardBilling() {
           </p>
           <div className="flex flex-wrap gap-4">
             <a
-              href="mailto:hello@adpilotsai.com?subject=Заявка на тариф adPilotsAI"
+              href="mailto:hello@veydo.com?subject=Заявка на тариф Veydo"
               className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-gray-100 text-gray-800 font-medium hover:bg-gray-200 transition-colors"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -29,7 +29,7 @@ function DashboardBilling() {
               Email
             </a>
             <a
-              href="https://t.me/adpilotsai"
+              href="https://t.me/veydo"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[#0088cc]/10 text-[#0088cc] font-medium hover:bg-[#0088cc]/20 transition-colors"

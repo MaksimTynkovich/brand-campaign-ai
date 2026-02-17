@@ -83,7 +83,7 @@ function AppContent() {
                   <circle cx="12" cy="14" r="2" fill="white" />
                 </svg>
               </div>
-              <span className="text-xl font-bold text-gray-900 tracking-tight">ADPILOTSAI</span>
+              <span className="text-xl font-bold text-gray-900 tracking-tight">VEYDO</span>
             </a>
 
             {/* Navigation Links — десктоп */}
@@ -215,7 +215,7 @@ function AppContent() {
             </section>
 
             {/* Video Carousel — блок демо: готовая библиотека шаблонов */}
-            <section id="demo" className="scroll-mt-20 py-20 bg-slate-50">
+            <section id="demo" className="scroll-mt-20 pt-20 bg-slate-50">
               <div className="max-w-1140 mx-auto px-6 lg:px-8">
                 <div className="text-center mb-12">
                   <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-3">
@@ -272,7 +272,7 @@ function AppContent() {
                     Реклама за 3 шага
                   </h2>
                   <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                    От идеи до реалистичного видео — adPilotsAI делает процесс простым, быстрым и невероятно реалистичным.
+                    От идеи до реалистичного видео — Veydo делает процесс простым, быстрым и невероятно реалистичным.
                   </p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -470,7 +470,7 @@ function AppContent() {
                   };
                   const rows = [
                     { criterion: 'Время', ai: 'Менее 3 минут на один креатив от идеи до готового видео', manual: 'Дни или недели: кастинг, съёмка, монтаж, согласования' },
-                    { criterion: 'Прайс', ai: 'От $29/мес — десятки видео в рамках подписки, без скрытых платежей', manual: 'От $500–2000 за ролик + права, рекламные пакеты, доработки' },
+                    { criterion: 'Прайс', ai: 'От $39/мес — десятки видео в рамках подписки, без скрытых платежей', manual: 'От $500–2000 за ролик + права, рекламные пакеты, доработки' },
                     { criterion: 'Масштаб', ai: 'Десятки вариантов в день: разные сценарии, хуки, форматы под тесты', manual: 'Обычно 1–3 варианта за цикл; больше — кратный рост бюджета' },
                     { criterion: 'Итерации', ai: 'Правки сценария и перегенерация за минуты, без доплат', manual: 'Любая правка — пересъёмка или долгий монтаж, часто за доплату' },
                     { criterion: 'Языки', ai: '35+ языков: сценарий, озвучка и субтитры из одного интерфейса', manual: 'Отдельный инфлюенсер или дубляж на каждый язык, дороже и дольше' },
@@ -479,7 +479,7 @@ function AppContent() {
                   // Анимировать таблицы поочерёдно через delay на transition
                   return (
                     <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] gap-8 lg:gap-6 items-stretch relative">
-                      {/* Левая карточка — adPilotsAI */}
+                      {/* Левая карточка — Veydo */}
                       <div className="group rounded-2xl border-2 border-primary bg-white shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-primary/80">
                         <div className="py-4 px-5 border-b border-gray-100 bg-gradient-to-b from-blue-50 to-white">
                           <div className="flex items-center gap-3">
@@ -487,7 +487,7 @@ function AppContent() {
                               <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                             </div>
                             <div>
-                              <h3 className="text-lg font-bold text-gray-900">adPilotsAI</h3>
+                              <h3 className="text-lg font-bold text-gray-900">Veydo</h3>
                               <p className="text-xs font-medium text-gray-600">AI генерация</p>
                             </div>
                             <span className="ml-auto text-xs font-semibold text-primary bg-blue-50 px-2 py-0.5 rounded-full">Рекомендуем</span>
@@ -719,7 +719,7 @@ function AppContent() {
                     Часто задаваемые вопросы
                   </h2>
                   <p className="text-xl text-gray-600">
-                    Все, что вам нужно знать о adPilotsAI
+                    Все, что вам нужно знать о Veydo
                   </p>
                 </div>
                 <div className="space-y-4">
@@ -730,7 +730,7 @@ function AppContent() {
                     },
                     {
                       question: 'Можно ли использовать видео для коммерческих целей?',
-                      answer: 'Да, все видео, созданные через adPilotsAI, можно использовать для коммерческих целей, включая рекламу в социальных сетях, на сайтах и в других маркетинговых каналах.'
+                      answer: 'Да, все видео, созданные через Veydo, можно использовать для коммерческих целей, включая рекламу в социальных сетях, на сайтах и в других маркетинговых каналах.'
                     },
                     {
                       question: 'Какие форматы видео поддерживаются?',
@@ -795,7 +795,7 @@ function AppContent() {
                   Готовы создать свое первое AI-видео?
                 </h2>
                 <p className="text-xl text-blue-100 mb-10 max-w-2xl mx-auto">
-                  Присоединяйтесь к тысячам маркетологов, которые уже используют adPilotsAI для создания эффективной рекламы
+                  Присоединяйтесь к тысячам маркетологов, которые уже используют Veydo для создания эффективной рекламы
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                   <button
@@ -828,11 +828,11 @@ function AppContent() {
             AI‑реклама нового поколения — запускай и смотри, как лиды летят к тебе! Вирально, мощно, именно то, что нужно для роста.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-sm">
-            <span>© {new Date().getFullYear()} adPilotsAI</span>
+            <span>© {new Date().getFullYear()} Veydo</span>
             <span className="hidden sm:inline text-gray-600">·</span>
             <Link to="/privacy" className="hover:text-primary transition-colors">Политика конфиденциальности</Link>
             <span className="hidden sm:inline text-gray-600">·</span>
-            <a href="mailto:hello@adpilotsai.com" className="hover:text-primary transition-colors">hello@adpilotsai.com</a>
+            <a href="mailto:hello@veydo.com" className="hover:text-primary transition-colors">hello@veydo.com</a>
             <span className="hidden sm:inline text-gray-600">·</span>
             <Link to="/terms" className="hover:text-primary transition-colors">Условия использования</Link>
           </div>

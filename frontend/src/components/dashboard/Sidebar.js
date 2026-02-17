@@ -64,7 +64,7 @@ function Sidebar({ isOpen, onToggle }) {
                   <circle cx="12" cy="14" r="2" fill="white" />
                 </svg>
               </div>
-              <span className="text-xl font-bold text-gray-900 tracking-tight">ADPILOTSAI</span>
+              <span className="text-xl font-bold text-gray-900 tracking-tight">VEYDO</span>
             </Link>
             <button
               onClick={onToggle}
