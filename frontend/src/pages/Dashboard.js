@@ -5,6 +5,9 @@ import Sidebar from '../components/dashboard/Sidebar';
 import TopBar from '../components/dashboard/TopBar';
 import DashboardHome from '../components/dashboard/DashboardHome';
 import DashboardBilling from '../components/dashboard/DashboardBilling';
+import MyVideos from '../components/dashboard/MyVideos';
+import AdminTemplates from '../components/dashboard/AdminTemplates';
+import AdminTemplateCategories from '../components/dashboard/AdminTemplateCategories';
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -32,7 +35,10 @@ function Dashboard() {
         <main className="flex-1 overflow-y-auto">
           <Routes>
             <Route path="/" element={<DashboardHome />} />
+            <Route path="my-videos" element={<MyVideos />} />
             <Route path="billing" element={<DashboardBilling />} />
+            <Route path="templates" element={<AdminTemplates />} />
+            <Route path="template-categories" element={<AdminTemplateCategories />} />
           </Routes>
         </main>
       </div>

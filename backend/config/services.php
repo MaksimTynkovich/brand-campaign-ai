@@ -35,4 +35,18 @@ return [
         ],
     ],
 
+    'gemini' => [
+        'api_key' => env('GEMINI_API_KEY'),
+        'veo_model' => env('VEO_MODEL', 'veo-3.0-fast-generate-001'),
+    ],
+
+    'openai' => [
+        'api_key' => env('OPENAI_API_KEY'),
+    ],
+
+    'kie_veo' => [
+        'api_key' => env('KIE_VEO_API_KEY'),
+        'base_url' => env('KIE_VEO_BASE_URL', 'https://api.kie.ai'),
+    ],
+
 ];

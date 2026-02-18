@@ -11,9 +11,36 @@ function CreditCardIcon({ className }) {
   );
 }
 
+function TemplateIcon({ className }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5z" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6z" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+    </svg>
+  );
+}
+
+function TagIcon({ className }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M3 11l8.586 8.586a2 2 0 002.828 0l6.586-6.586a2 2 0 000-2.828L12.414 3H7a4 4 0 00-4 4v4z" />
+    </svg>
+  );
+}
+
+function VideoIcon({ className }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+    </svg>
+  );
+}
+
 function Sidebar({ isOpen, onToggle }) {
   const location = useLocation();
 
+  const user = api.getCurrentUser();
   const menuItems = [
     {
       title: 'Главная',
@@ -22,10 +49,29 @@ function Sidebar({ isOpen, onToggle }) {
       exact: true,
     },
     {
+      title: 'Мои видео',
+      icon: VideoIcon,
+      path: '/dashboard/my-videos',
+    },
+    {
       title: 'Тариф и оплата',
       icon: CreditCardIcon,
       path: '/dashboard/billing',
     },
+    ...(user?.is_admin
+      ? [
+          {
+            title: 'Категории шаблонов',
+            icon: TagIcon,
+            path: '/dashboard/template-categories',
+          },
+          {
+            title: 'Шаблоны (админ)',
+            icon: TemplateIcon,
+            path: '/dashboard/templates',
+          },
+        ]
+      : []),
   ];
 
   const isActive = (path, exact = false) => {

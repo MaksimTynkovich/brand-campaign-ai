@@ -3,42 +3,123 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreTemplateRequest;
+use App\Http\Requests\UpdateTemplateRequest;
+use App\Models\TemplateCategory;
+use App\Models\Template;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Storage;
 
 class TemplateController extends Controller
 {
-    private function getMockTemplates(): array
+    public function index(\Illuminate\Http\Request $request): JsonResponse
     {
-        return [
-            [
-                'id' => 1,
-                'name' => 'Удержание с хуком',
-                'description' => 'Резкий хук в первые секунды, проблема — решение — CTA',
-                'preview_url' => 'https://cdn.prod.website-files.com/67459e4d11ea8f89122689ca/68e6630cf2bebfaf8ed505a3_3video.webp',
-                'default_voiceover' => "Не могу поверить, что это так работает! Смотри: [продукт] решает именно ту проблему, о которой все молчат. Перестань переплачивать — попробуй сам. Ссылка в шапке.",
-                'sort_order' => 1,
-            ],
-            [
-                'id' => 2,
-                'name' => 'До и после',
-                'description' => 'Классический формат сравнения до/после с эмоцией',
-                'preview_url' => 'https://cdn.prod.website-files.com/67459e4d11ea8f89122689ca/68e6647328fdc175188398f1_4video.webp',
-                'default_voiceover' => "Раньше я думала, что [проблема]. Пока не попробовала [продукт]. Результат за первую неделю — сама в шоке. Заказывай по ссылке.",
-                'sort_order' => 2,
-            ],
-            [
-                'id' => 3,
-                'name' => 'Распаковка и восторг',
-                'description' => 'UGC-распаковка с живой реакцией и призывом',
-                'preview_url' => 'https://cdn.prod.website-files.com/67459e4d11ea8f89122689ca/68e6630c6385efed4bdfef33_8video.webp',
-                'default_voiceover' => "Наконец-то приехало! Смотри, что внутри. Качество огонь, за такую цену — вообще подарок. Кто ещё не заказывал — ссылка в профиле.",
-                'sort_order' => 3,
-            ],
-        ];
+        $query = Template::query()->orderBy('sort_order');
+        $category = $request->query('category');
+        if ($category !== null && $category !== '') {
+            $query->where('category', $category);
+        }
+        $templates = $query->get([
+            'id', 'category', 'description',
+            'preview_url', 'example_video_path', 'default_voiceover', 'sort_order',
+        ]);
+        $categories = TemplateCategory::query()
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->pluck('name')
+            ->values()
+            ->toArray();
+
+        return response()->json([
+            'data' => $templates,
+            'meta' => ['categories' => $categories],
+        ]);
     }
 
-    public function index(): JsonResponse
+    public function store(StoreTemplateRequest $request): JsonResponse
     {
-        return response()->json(['data' => $this->getMockTemplates()]);
+        $data = $request->safe()->except(['preview', 'example_video', 'reference_images']);
+        $data['sort_order'] = $data['sort_order'] ?? 0;
+
+        if ($request->hasFile('preview')) {
+            $data['preview_url'] = $request->file('preview')->store('templates', 'public');
+        }
+
+        $template = Template::create($data);
+
+        if ($request->hasFile('example_video')) {
+            $data['example_video_path'] = $request->file('example_video')->store('templates/videos', 'public');
+            $template->update(['example_video_path' => $data['example_video_path']]);
+        }
+
+        if ($request->hasFile('reference_images')) {
+            $paths = [];
+            foreach ($request->file('reference_images') as $file) {
+                $paths[] = $file->store('templates/reference/' . $template->id, 'public');
+            }
+            $template->update(['reference_images' => $paths]);
+        }
+
+        return response()->json(['data' => $template->fresh()], 201);
+    }
+
+    public function show(Template $template): JsonResponse
+    {
+        return response()->json(['data' => $template]);
+    }
+
+    public function update(UpdateTemplateRequest $request, Template $template): JsonResponse
+    {
+        $data = $request->safe()->except(['preview', 'example_video', 'reference_images']);
+
+        if ($request->hasFile('preview')) {
+            if ($template->getRawOriginal('preview_url')) {
+                Storage::disk('public')->delete($template->getRawOriginal('preview_url'));
+            }
+            $data['preview_url'] = $request->file('preview')->store('templates', 'public');
+        }
+
+        if ($request->hasFile('example_video')) {
+            $raw = $template->getRawOriginal('example_video_path');
+            if (is_string($raw) && !str_starts_with($raw, 'http')) {
+                Storage::disk('public')->delete($raw);
+            }
+            $data['example_video_path'] = $request->file('example_video')->store('templates/videos', 'public');
+        }
+
+        if ($request->hasFile('reference_images')) {
+            $oldRefs = $template->getRawOriginal('reference_images');
+            if (is_array($oldRefs)) {
+                foreach ($oldRefs as $path) {
+                    if (is_string($path)) {
+                        Storage::disk('public')->delete($path);
+                    }
+                }
+            }
+            $paths = [];
+            foreach ($request->file('reference_images') as $file) {
+                $paths[] = $file->store('templates/reference/' . $template->id, 'public');
+            }
+            $data['reference_images'] = $paths;
+        }
+
+        $template->update($data);
+
+        return response()->json(['data' => $template->fresh()]);
+    }
+
+    public function destroy(Template $template): JsonResponse
+    {
+        $rawPreview = $template->getRawOriginal('preview_url');
+        if ($rawPreview && !str_starts_with($rawPreview, 'http')) {
+            Storage::disk('public')->delete($rawPreview);
+        }
+        $rawVideo = $template->getRawOriginal('example_video_path');
+        if (is_string($rawVideo) && !str_starts_with($rawVideo, 'http')) {
+            Storage::disk('public')->delete($rawVideo);
+        }
+        $template->delete();
+
+        return response()->json(null, 204);
     }
 }

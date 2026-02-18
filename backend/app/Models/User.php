@@ -22,6 +22,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'is_admin',
+        'credits',
+        'plan',
     ];
 
     /**
@@ -44,6 +47,22 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_admin' => 'boolean',
         ];
+    }
+
+    public function hasCredits(int $amount = 1): bool
+    {
+        return ($this->credits ?? 0) >= $amount;
+    }
+
+    public function spendCredits(int $amount = 1): bool
+    {
+        if (!$this->hasCredits($amount)) {
+            return false;
+        }
+        $this->decrement('credits', $amount);
+
+        return true;
     }
 }
