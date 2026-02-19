@@ -22,17 +22,17 @@ function Dashboard() {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen flex bg-[#f8fafc]">
       {/* Sidebar */}
       <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col lg:ml-0">
+      <div className="flex-1 flex flex-col lg:ml-0 min-w-0">
         {/* Top Bar */}
         <TopBar onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
 
-        {/* Page Content */}
-        <main className="flex-1 overflow-y-auto">
+        {/* Page Content — лёгкий градиент для глубины */}
+        <main className="flex-1 overflow-y-auto bg-gradient-to-b from-white/60 to-gray-50/50">
           <Routes>
             <Route path="/" element={<DashboardHome />} />
             <Route path="my-videos" element={<MyVideos />} />

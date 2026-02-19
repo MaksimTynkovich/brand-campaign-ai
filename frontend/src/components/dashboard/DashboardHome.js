@@ -6,7 +6,6 @@ const MAX_POLL_ATTEMPTS = 120;
 
 function DashboardHome() {
   const user = api.getCurrentUser();
-  const [billing, setBilling] = useState({ credits: 0, plan: 'trial' });
   const [categories, setCategories] = useState([]);
   const [templates, setTemplates] = useState([]);
   const [templatesLoading, setTemplatesLoading] = useState(true);
@@ -32,10 +31,6 @@ function DashboardHome() {
     }).finally(() => setTemplatesLoading(false));
   }, []);
 
-  useEffect(() => {
-    if (!api.isAuthenticated()) return;
-    api.getBillingFromApi().then((data) => setBilling(data)).catch(() => {});
-  }, [generating]);
 
   const activeTemplate = templates.find((t) => t.id === activeTemplateId);
 
@@ -109,26 +104,9 @@ function DashboardHome() {
 
   return (
     <div className="p-6 lg:p-8">
-      {/* Welcome Section */}
-      <div className="mb-8">
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-          Добро пожаловать, {user?.name || 'Пользователь'}!
-        </h1>
-        <p className="text-lg text-gray-600 mb-2">
-          Выберите готовый шаблон и запустите свой первый AI-ролик за пару минут.
-        </p>
-        <p className="text-sm text-gray-500">
-          Кредиты: <span className="font-medium text-gray-700">{billing.credits ?? 0}</span>
-          {' · '}
-          Тариф: <span className="font-medium text-gray-700">{billing.plan ?? 'trial'}</span>
-        </p>
-      </div>
-
       {/* Templates section */}
       <section className="mb-10">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-xl font-bold text-gray-900">Шаблоны для быстрого старта</h2>
-        </div>
+        <h2 className="text-lg font-semibold text-gray-900 mb-4 tracking-tight">Шаблоны для быстрого старта</h2>
 
         {/* Categories pills — только когда есть категории с API */}
         {categories.length > 0 && (
@@ -163,7 +141,7 @@ function DashboardHome() {
           </div>
         )}
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4 sm:gap-5">
           {templatesLoading ? (
             <p className="col-span-full text-center py-8 text-gray-500">Загрузка шаблонов…</p>
           ) : templates.length === 0 ? (

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import api from '../../services/api';
 import Sparkles from '../../assets/icons/Sparkles';
@@ -39,6 +39,12 @@ function VideoIcon({ className }) {
 
 function Sidebar({ isOpen, onToggle }) {
   const location = useLocation();
+  const [billing, setBilling] = useState({ credits: 0, plan: 'trial' });
+
+  useEffect(() => {
+    if (!api.isAuthenticated()) return;
+    api.getBillingFromApi().then(setBilling).catch(() => {});
+  }, [location.pathname]);
 
   const user = api.getCurrentUser();
   const menuItems = [
@@ -93,13 +99,13 @@ function Sidebar({ isOpen, onToggle }) {
 
       {/* Sidebar */}
       <aside
-        className={`fixed lg:static inset-y-0 left-0 z-40 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out ${
-          isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        className={`fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-gray-100 shadow-sm transform transition-transform duration-300 ease-in-out lg:static lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 lg:shrink-0 ${
+          isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col h-full min-h-0">
           {/* Logo */}
-          <div className="flex items-center justify-between h-20 px-6 border-b border-gray-200">
+          <div className="flex items-center justify-between h-20 px-6 border-b border-gray-100">
             <Link to="/dashboard" className="flex items-center gap-3">
               <div className="relative w-8 h-8">
                 <svg viewBox="0 0 32 32" className="w-8 h-8">
@@ -123,8 +129,8 @@ function Sidebar({ isOpen, onToggle }) {
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 px-4 py-6 overflow-y-auto">
-            <div className="space-y-2">
+          <nav className="flex-1 px-3 py-5 overflow-y-auto">
+            <div className="space-y-1">
               {menuItems.map((item) => {
                 const IconComponent = item.icon;
                 const active = isActive(item.path, item.exact);
@@ -132,13 +138,13 @@ function Sidebar({ isOpen, onToggle }) {
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 ${
+                    className={`flex items-center gap-3 pl-3 pr-3 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 border-l-2 ${
                       active
-                        ? 'bg-primary/10 text-primary border-l-4 border-primary'
-                        : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                        ? 'bg-primary/10 text-primary border-primary'
+                        : 'border-transparent text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                     }`}
                   >
-                    <IconComponent className={`w-5 h-5 ${active ? 'text-primary' : 'text-gray-500'}`} />
+                    <IconComponent className={`w-5 h-5 flex-shrink-0 ${active ? 'text-primary' : 'text-gray-400'}`} />
                     <span>{item.title}</span>
                   </Link>
                 );
@@ -146,21 +152,18 @@ function Sidebar({ isOpen, onToggle }) {
             </div>
           </nav>
 
-          {/* User Section */}
-          <div className="p-4 border-t border-gray-200">
-            <div className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer">
-              <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-semibold">
-                {api.getCurrentUser()?.name?.charAt(0)?.toUpperCase() || 'U'}
+          {/* Баланс и тариф */}
+          <div className="p-3 pt-2 border-t border-gray-100">
+            <Link
+              to="/dashboard/billing"
+              className="flex items-center justify-between gap-3 rounded-lg py-2.5 px-3 text-left hover:bg-gray-50 transition-colors"
+            >
+              <div className="min-w-0">
+                <p className="text-[11px] text-gray-400 uppercase tracking-wider">Кредиты</p>
+                <p className="text-lg font-semibold text-gray-900 tabular-nums leading-tight">{billing.credits ?? 0}</p>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-gray-900 truncate">
-                  {api.getCurrentUser()?.name || 'Пользователь'}
-                </p>
-                <p className="text-xs text-gray-600 truncate">
-                  {api.getCurrentUser()?.email || ''}
-                </p>
-              </div>
-            </div>
+              <span className="text-[11px] text-gray-500 capitalize shrink-0">{billing.plan ?? 'trial'}</span>
+            </Link>
           </div>
         </div>
       </aside>
