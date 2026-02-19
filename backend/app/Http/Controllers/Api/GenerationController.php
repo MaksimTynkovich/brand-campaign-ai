@@ -11,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class GenerationController extends Controller
 {
@@ -111,5 +112,48 @@ class GenerationController extends Controller
                 'error_message' => $job->error_message,
             ],
         ]);
+    }
+
+    /**
+     * Скачать видео по job id (только своё, с Content-Disposition: attachment).
+     */
+    public function download(Request $request, int $jobId): BinaryFileResponse|JsonResponse
+    {
+        $job = GenerationJob::where('id', $jobId)
+            ->where('user_id', $request->user()?->id)
+            ->first();
+
+        if (!$job || $job->status !== GenerationJob::STATUS_COMPLETED || !$job->video_path) {
+            return response()->json([
+                'error' => ['message' => 'Not Found', 'code' => 404, 'details' => []],
+            ], 404);
+        }
+
+        $path = $this->videoPathToStorageRelative($job->video_path);
+        if (!$path || !Storage::disk('public')->exists($path)) {
+            return response()->json([
+                'error' => ['message' => 'File not found', 'code' => 404, 'details' => []],
+            ], 404);
+        }
+
+        $fullPath = Storage::disk('public')->path($path);
+        $filename = 'video_' . $job->id . '.mp4';
+
+        return response()->file($fullPath, [
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ]);
+    }
+
+    private function videoPathToStorageRelative(?string $videoPath): ?string
+    {
+        if (!$videoPath || !is_string($videoPath)) {
+            return null;
+        }
+        $path = parse_url($videoPath, PHP_URL_PATH);
+        if (!$path || !str_starts_with($path, '/storage/')) {
+            return null;
+        }
+
+        return ltrim(substr($path, strlen('/storage/')), '/');
     }
 }

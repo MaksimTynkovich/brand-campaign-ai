@@ -58,6 +58,7 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/billing', [BillingController::class, 'index']);
     Route::get('/my-videos', [GenerationController::class, 'myVideos']);
+    Route::get('/generation/{jobId}/download', [GenerationController::class, 'download']);
     Route::post('/generation/start', [GenerationController::class, 'start']);
     Route::get('/generation/status/{jobId}', [GenerationController::class, 'status']);
 });

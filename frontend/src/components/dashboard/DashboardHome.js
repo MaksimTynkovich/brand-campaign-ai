@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import api, { getStorageUrl } from '../../services/api';
 
 const POLL_INTERVAL_MS = 2000;
@@ -7,9 +7,9 @@ const MAX_POLL_ATTEMPTS = 120;
 function DashboardHome() {
   const user = api.getCurrentUser();
   const [billing, setBilling] = useState({ credits: 0, plan: 'trial' });
-  const defaultCategories = ['Новые', 'Распаковка', 'Виральный хук', 'POV', 'ASMR', 'UGC-обзор', 'Визуальные эффекты'];
-  const [categories, setCategories] = useState(defaultCategories);
+  const [categories, setCategories] = useState([]);
   const [templates, setTemplates] = useState([]);
+  const [templatesLoading, setTemplatesLoading] = useState(true);
   const [activeTemplateId, setActiveTemplateId] = useState(null);
   const [activeCategory, setActiveCategory] = useState(null);
   const [promptText, setPromptText] = useState('');
@@ -18,13 +18,18 @@ function DashboardHome() {
   const [jobId, setJobId] = useState(null);
   const [resultVideoUrl, setResultVideoUrl] = useState(null);
   const [genError, setGenError] = useState(null);
+  const exampleVideoRef = useRef(null);
+  const [exampleSoundOn, setExampleSoundOn] = useState(true);
+  const [cardSoundOn, setCardSoundOn] = useState({});
+  const cardVideoRefs = useRef({});
 
   useEffect(() => {
+    setTemplatesLoading(true);
     api.getTemplates().then((res) => {
       setTemplates(Array.isArray(res.data) ? res.data : []);
       const cats = res.meta?.categories;
-      if (Array.isArray(cats)) setCategories(cats);
-    });
+      setCategories(Array.isArray(cats) ? cats : []);
+    }).finally(() => setTemplatesLoading(false));
   }, []);
 
   useEffect(() => {
@@ -33,6 +38,16 @@ function DashboardHome() {
   }, [generating]);
 
   const activeTemplate = templates.find((t) => t.id === activeTemplateId);
+
+  // При открытии модалки с примером видео — звук по умолчанию вкл, автозапуск
+  useEffect(() => {
+    if (activeTemplate?.example_video_url) {
+      setExampleSoundOn(true);
+      if (exampleVideoRef.current) {
+        exampleVideoRef.current.play().catch(() => {});
+      }
+    }
+  }, [activeTemplate?.example_video_url]);
 
   const setImageAt = (index, file) => {
     setImages((prev) => {
@@ -115,70 +130,130 @@ function DashboardHome() {
           <h2 className="text-xl font-bold text-gray-900">Шаблоны для быстрого старта</h2>
         </div>
 
-        {/* Categories pills */}
-        <div className="mb-4 overflow-x-auto">
-          <div className="flex items-center gap-2 sm:gap-3 min-w-max">
-            <button
-              type="button"
-              onClick={() => setActiveCategory(null)}
-              className={`whitespace-nowrap px-3 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm border transition-colors ${
-                activeCategory === null
-                  ? 'bg-primary text-white border-primary shadow-sm'
-                  : 'bg-gray-100 text-gray-700 border-transparent hover:bg-gray-200'
-              }`}
-            >
-              Все
-            </button>
-            {categories.map((cat) => (
+        {/* Categories pills — только когда есть категории с API */}
+        {categories.length > 0 && (
+          <div className="mb-4 overflow-x-auto">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-max">
               <button
-                key={cat}
                 type="button"
-                onClick={() => setActiveCategory(cat)}
+                onClick={() => setActiveCategory(null)}
                 className={`whitespace-nowrap px-3 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm border transition-colors ${
-                  activeCategory === cat
+                  activeCategory === null
                     ? 'bg-primary text-white border-primary shadow-sm'
                     : 'bg-gray-100 text-gray-700 border-transparent hover:bg-gray-200'
                 }`}
               >
-                {cat === 'Виральный хук' ? 'Виральный хук 🔥' : cat}
+                Все
               </button>
-            ))}
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setActiveCategory(cat)}
+                  className={`whitespace-nowrap px-3 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm border transition-colors ${
+                    activeCategory === cat
+                      ? 'bg-primary text-white border-primary shadow-sm'
+                      : 'bg-gray-100 text-gray-700 border-transparent hover:bg-gray-200'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
-          {templates.length === 0 ? (
-            [1, 2, 3, 4, 5].map((i) => (
-              <div
-                key={i}
-                className="rounded-2xl overflow-hidden border border-gray-200 bg-gray-100 aspect-[9/16] flex items-center justify-center text-gray-400 text-sm"
-              >
-                Загрузка…
-              </div>
-            ))
+          {templatesLoading ? (
+            <p className="col-span-full text-center py-8 text-gray-500">Загрузка шаблонов…</p>
+          ) : templates.length === 0 ? (
+            <p className="col-span-full text-center py-8 text-gray-500">Нет шаблонов</p>
           ) : (() => {
             const filtered = activeCategory === null ? templates : templates.filter((t) => t.category === activeCategory);
             return filtered.length ? filtered.map((t) => (
-              <button
+              <div
                 key={t.id}
-                type="button"
+                role="button"
+                tabIndex={0}
                 onClick={() => setActiveTemplateId(t.id)}
-                className="group rounded-2xl overflow-hidden border border-gray-200 bg-white shadow-sm hover:shadow-lg hover:border-primary transition-all duration-200 text-left"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setActiveTemplateId(t.id);
+                  }
+                }}
+                onMouseEnter={() => {
+                  const video = cardVideoRefs.current[t.id];
+                  if (!video) return;
+                  const play = () => video.play().catch(() => {});
+                  if (video.readyState >= 2) {
+                    play();
+                  } else {
+                    video.addEventListener('canplay', play, { once: true });
+                  }
+                }}
+                onMouseLeave={() => {
+                  const video = cardVideoRefs.current[t.id];
+                  if (video) {
+                    video.pause();
+                    video.currentTime = 0;
+                  }
+                }}
+                className="group rounded-2xl overflow-hidden border border-gray-200 bg-white shadow-sm hover:shadow-lg transition-all duration-200 text-left cursor-pointer"
               >
                 <div className="relative aspect-[9/16] bg-gray-900">
-                  {t.preview_url ? (
+                  {t.example_video_url ? (
+                    <>
+                      {t.preview_url && (
+                        <img src={getStorageUrl(t.preview_url)} alt="" className="absolute inset-0 w-full h-full object-cover" aria-hidden />
+                      )}
+                      <video
+                        ref={(el) => { cardVideoRefs.current[t.id] = el; }}
+                        src={getStorageUrl(t.example_video_url)}
+                        poster={t.preview_url ? getStorageUrl(t.preview_url) : undefined}
+                        loop
+                        playsInline
+                        muted={!cardSoundOn[t.id]}
+                        preload="auto"
+                        className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                      />
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const next = !cardSoundOn[t.id];
+                          setCardSoundOn((prev) => ({ ...prev, [t.id]: next }));
+                          const video = cardVideoRefs.current[t.id];
+                          if (video) {
+                            video.muted = !next;
+                            if (next) video.play().catch(() => {});
+                          }
+                        }}
+                        className="absolute bottom-2 right-2 p-1.5 rounded-full bg-black/50 hover:bg-black/70 text-white transition-opacity opacity-0 group-hover:opacity-100 z-10"
+                        aria-label={cardSoundOn[t.id] ? 'Выключить звук' : 'Включить звук'}
+                      >
+                        {cardSoundOn[t.id] ? (
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+                          </svg>
+                        ) : (
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z" />
+                          </svg>
+                        )}
+                      </button>
+                      {!t.preview_url && (
+                        <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-gray-900 to-gray-700 pointer-events-none" />
+                      )}
+                    </>
+                  ) : t.preview_url ? (
                     <img src={getStorageUrl(t.preview_url)} alt="" className="absolute inset-0 w-full h-full object-cover" />
                   ) : (
                     <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-gray-900 to-gray-700" />
                   )}
-                  <div className="absolute inset-0 opacity-30 group-hover:opacity-40 transition-opacity bg-gradient-to-t from-black/70 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-3">
-                    <p className="text-xs sm:text-sm font-semibold text-white line-clamp-2">
-                      {t.category || `Шаблон #${t.id}`}
-                    </p>
-                  </div>
+                  <div className="absolute inset-0 opacity-30 group-hover:opacity-40 transition-opacity bg-gradient-to-t from-black/70 to-transparent pointer-events-none" />
                 </div>
-              </button>
+              </div>
             )) : (
               <p className="col-span-full text-center py-8 text-gray-500">Нет шаблонов в этой категории</p>
             );
@@ -192,10 +267,6 @@ function DashboardHome() {
           <div className="bg-white text-gray-900 rounded-2xl shadow-2xl border border-gray-200 max-w-5xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between px-5 pt-4 pb-3 border-b border-gray-200 sticky top-0 bg-white z-10">
               <div>
-                <p className="text-xs uppercase tracking-wide text-gray-400 mb-1">
-                  {(activeTemplate?.category || `Шаблон #${activeTemplateId}`)} · {activeCategory ?? 'Все'}
-                </p>
-                <h3 className="text-lg font-semibold">Параметры ролика</h3>
               </div>
               <button
                 type="button"
@@ -213,7 +284,7 @@ function DashboardHome() {
             <div className="flex flex-col lg:flex-row">
               {/* Левая колонка: превью или результат */}
               <div className="lg:w-2/5 border-b lg:border-b-0 lg:border-r border-gray-200 p-4 flex flex-col gap-3">
-                <div className="rounded-2xl overflow-hidden bg-black aspect-[9/16] max-h-[min(520px,70vh)] w-full mx-auto">
+                <div className="relative rounded-2xl overflow-hidden bg-black aspect-[9/16] max-h-[min(520px,70vh)] w-full mx-auto">
                   {resultVideoUrl ? (
                     <video
                       src={getStorageUrl(resultVideoUrl)}
@@ -222,12 +293,34 @@ function DashboardHome() {
                       playsInline
                     />
                   ) : activeTemplate?.example_video_url ? (
-                    <video
-                      src={getStorageUrl(activeTemplate.example_video_url)}
-                      controls
-                      className="w-full h-full object-cover"
-                      playsInline
-                    />
+                    <>
+                      <video
+                        ref={exampleVideoRef}
+                        src={getStorageUrl(activeTemplate.example_video_url)}
+                        autoPlay
+                        muted={!exampleSoundOn}
+                        loop
+                        playsInline
+                        className="w-full h-full object-cover [&::-webkit-media-controls]:hidden"
+                        style={{ pointerEvents: 'none' }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setExampleSoundOn((v) => !v)}
+                        className="absolute bottom-2 right-2 p-2 rounded-full bg-black/50 hover:bg-black/70 text-white transition-colors"
+                        aria-label={exampleSoundOn ? 'Выключить звук' : 'Включить звук'}
+                      >
+                        {exampleSoundOn ? (
+                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+                          </svg>
+                        ) : (
+                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z" />
+                          </svg>
+                        )}
+                      </button>
+                    </>
                   ) : activeTemplate?.preview_url ? (
                     <img
                       src={getStorageUrl(activeTemplate.preview_url)}
@@ -245,9 +338,7 @@ function DashboardHome() {
                     </div>
                   )}
                 </div>
-                <p className="text-xs text-gray-500 text-center">
-                  {resultVideoUrl ? 'Готовый ролик' : activeTemplate?.example_video_url ? 'Пример шаблона' : 'Превью 9:16'}
-                </p>
+
               </div>
 
               {/* Правая колонка: форма и результат */}
@@ -266,18 +357,18 @@ function DashboardHome() {
                         <span className="text-[11px] text-gray-400">Опционально, до 2 фото</span>
                       </div>
                       <p className="text-xs text-gray-500 mb-2">
-                        Если не загружаете — используются референсы шаблона. Если загружаете 1–2 фото — к ним добавится начальный кадр из шаблона.
+                        Если не загружаете — используются референсы шаблона.
                       </p>
-                      <div className="grid grid-cols-2 gap-2">
+                      <div className="flex gap-2 max-w-[200px]">
                         {[0, 1].map((slot) => (
-                          <label key={slot} className="cursor-pointer">
+                          <label key={slot} className="cursor-pointer flex-1 min-w-0">
                             <input
                               type="file"
                               accept="image/*"
                               className="hidden"
                               onChange={(e) => setImageAt(slot, e.target.files?.[0] || null)}
                             />
-                            <div className="aspect-square rounded-xl border border-dashed border-gray-300 bg-gray-50 flex flex-col items-center justify-center text-[11px] text-gray-500 hover:border-primary hover:text-primary transition-colors overflow-hidden">
+                            <div className="aspect-square w-full max-w-[92px] rounded-lg border border-dashed border-gray-300 bg-gray-50 flex flex-col items-center justify-center text-[11px] text-gray-500 hover:border-primary hover:text-primary transition-colors overflow-hidden">
                               {images[slot] ? (
                                 <span className="px-2 truncate w-full text-center text-gray-700">
                                   {images[slot].name}
@@ -296,8 +387,7 @@ function DashboardHome() {
 
                     <div className="flex-1 flex flex-col">
                       <div className="flex items-center justify-between mb-2">
-                        <h4 className="text-sm font-medium text-gray-900">Описание для AI</h4>
-                        <span className="text-[11px] text-gray-400">Можно переписать под свой продукт</span>
+                        <h4 className="text-sm font-medium text-gray-900">Описание</h4>
                       </div>
                       <textarea
                         value={promptText}
@@ -315,7 +405,7 @@ function DashboardHome() {
 
                 <div className="flex items-center justify-between pt-3 border-t border-gray-200">
                   <span className="text-[11px] text-gray-400">
-                    Формат: 15 сек · вертикальное видео 9:16
+                    Формат: 8 сек · вертикальное видео 9:16
                   </span>
                   <div className="flex gap-3">
                     <button
