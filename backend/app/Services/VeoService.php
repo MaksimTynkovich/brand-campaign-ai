@@ -5,6 +5,7 @@ namespace App\Services;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 
 /**
  * Генерация видео по промпту (и опционально изображениям).
@@ -24,12 +25,12 @@ class VeoService
     /**
      * Запустить генерацию, дождаться результата, сохранить видео в storage.
      *
-     * @param array<int, string> $imagePaths Пока не используются: Kie API ожидает публичные URL изображений
+     * @param array<int, array{disk: string, path: string}> $imageItems Каждый элемент: disk ('local'|'public'), path (относительный)
      * @return string|null URL готового видео в нашем storage или null при ошибке/отсутствии ключа
      */
-    public function generate(string $prompt, array $imagePaths = []): ?string
+    public function generate(string $prompt, array $imageItems = []): ?string
     {
-        $imageUrls = $this->resolveImageUrls($imagePaths);
+        $imageUrls = $this->resolveImageUrls($imageItems);
         $taskId = $this->kieVeo->createTask($prompt, $imageUrls, '9:16', 'veo3_fast');
 
         if ($taskId === null) {
@@ -76,12 +77,33 @@ class VeoService
     }
 
     /**
-     * Сейчас изображения — локальные пути; Kie API нужны публичные URL.
-     * Возвращаем пустой массив (только text-to-video). Позже можно добавить загрузку файлов в Kie и подстановку URL.
+     * Преобразует элементы [disk, path] в публичные URL для Kie API.
+     * — public: Storage::url().
+     * — local: временная подписанная ссылка на api/generation/serve-image (Kie должен иметь доступ к APP_URL).
      */
-    private function resolveImageUrls(array $imagePaths): array
+    private function resolveImageUrls(array $imageItems): array
     {
-        return [];
+        $urls = [];
+        foreach ($imageItems as $item) {
+            $disk = $item['disk'] ?? 'public';
+            $path = $item['path'] ?? '';
+            if ($path === '') {
+                continue;
+            }
+            if ($disk === 'public' && Storage::disk('public')->exists($path)) {
+                $urls[] = URL::to(Storage::disk('public')->url($path));
+                continue;
+            }
+            if ($disk === 'local' && Storage::disk('local')->exists($path)) {
+                $urls[] = URL::temporarySignedRoute(
+                    'generation.serve-image',
+                    now()->addMinutes(60),
+                    ['path' => $path]
+                );
+            }
+        }
+
+        return $urls;
     }
 
     private function downloadAndSave(string $videoUrl): ?string

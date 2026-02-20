@@ -50,21 +50,21 @@ class ProcessGenerationJob implements ShouldQueue
         $mergedPrompt = $promptMerge->merge($template->original_prompt, (string) $job->user_prompt);
         $job->update(['merged_prompt' => $mergedPrompt]);
 
-        $userImagePaths = $this->resolveImagePaths($job);
-        $templateRefPaths = $this->resolveTemplateReferencePaths($template);
+        $userImageItems = $this->resolveImagePaths($job);
+        $templateRefItems = $this->resolveTemplateReferencePaths($template);
 
         // 0 фото юзера → используем референсы шаблона (начальный кадр + фото продукта).
         // 1–2 фото юзера → начальный кадр из шаблона (первый референс) + фото продукта от юзера.
-        $allImagePaths = [];
-        if (count($userImagePaths) === 0) {
-            $allImagePaths = $templateRefPaths;
+        $allImageItems = [];
+        if (count($userImageItems) === 0) {
+            $allImageItems = $templateRefItems;
         } else {
-            $initialFramePath = isset($templateRefPaths[0]) ? [$templateRefPaths[0]] : [];
-            $allImagePaths = array_merge($initialFramePath, $userImagePaths);
+            $initialFrame = isset($templateRefItems[0]) ? [$templateRefItems[0]] : [];
+            $allImageItems = array_merge($initialFrame, $userImageItems);
         }
 
-        Log::info('[Generation] Запрос к Veo (Kie.ai)', ['job_id' => $job->id, 'prompt_length' => strlen($mergedPrompt)]);
-        $videoPath = $veo->generate($mergedPrompt, $allImagePaths);
+        Log::info('[Generation] Запрос к Veo (Kie.ai)', ['job_id' => $job->id, 'prompt_length' => strlen($mergedPrompt), 'images_count' => count($allImageItems)]);
+        $videoPath = $veo->generate($mergedPrompt, $allImageItems);
 
         if ($videoPath !== null) {
             $job->update([
@@ -80,38 +80,47 @@ class ProcessGenerationJob implements ShouldQueue
         }
     }
 
+    /**
+     * @return array<int, array{disk: string, path: string}>
+     */
     private function resolveImagePaths(GenerationJob $job): array
     {
         $input = $job->input ?? [];
         $stored = $input['stored_paths'] ?? [];
-        $paths = [];
+        $items = [];
         foreach ($stored as $rel) {
+            if (!is_string($rel)) {
+                continue;
+            }
             $full = Storage::disk('local')->path($rel);
             if (is_file($full)) {
-                $paths[] = $full;
+                $items[] = ['disk' => 'local', 'path' => $rel];
             }
         }
 
-        return $paths;
+        return $items;
     }
 
+    /**
+     * @return array<int, array{disk: string, path: string}>
+     */
     private function resolveTemplateReferencePaths(Template $template): array
     {
         $refs = $template->reference_images;
         if (!is_array($refs)) {
             return [];
         }
-        $paths = [];
+        $items = [];
         foreach ($refs as $rel) {
             if (!is_string($rel) || str_starts_with($rel, 'http')) {
                 continue;
             }
             $full = Storage::disk('public')->path($rel);
             if (is_file($full)) {
-                $paths[] = $full;
+                $items[] = ['disk' => 'public', 'path' => $rel];
             }
         }
 
-        return $paths;
+        return $items;
     }
 }

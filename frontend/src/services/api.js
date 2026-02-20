@@ -283,6 +283,37 @@ class ApiService {
     return { data: res.data ?? [], meta: res.meta ?? {} };
   }
 
+  /** Карусель на главной (публичный, без авторизации) */
+  async getCarousel() {
+    const res = await this.request('/carousel');
+    return res.data ?? [];
+  }
+
+  // Admin: пользователи
+  async getAdminUsers() {
+    const res = await this.request('/admin/users');
+    return { data: res.data ?? [], meta: res.meta ?? {} };
+  }
+
+  async updateAdminUser(id, data) {
+    const res = await this.request(`/admin/users/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+    return res.data ?? res;
+  }
+
+  async getAdminCarousel() {
+    return this.request('/admin/carousel');
+  }
+
+  async updateAdminCarousel(templateIds) {
+    return this.request('/admin/carousel', {
+      method: 'PUT',
+      body: JSON.stringify({ template_ids: templateIds }),
+    });
+  }
+
   // Auth
   async login(email, password) {
     const response = await this.request('/auth/login', {
@@ -321,6 +352,17 @@ class ApiService {
   async logout() {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('user');
+  }
+
+  async changePassword(currentPassword, newPassword) {
+    return this.request('/auth/password', {
+      method: 'POST',
+      body: JSON.stringify({
+        current_password: currentPassword,
+        password: newPassword,
+        password_confirmation: newPassword,
+      }),
+    });
   }
 
   getCurrentUser() {

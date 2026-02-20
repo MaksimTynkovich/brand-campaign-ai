@@ -124,7 +124,7 @@ function AppContent() {
                   onClick={() => navigate('/dashboard')}
                   className="px-6 py-2.5 bg-primary text-white rounded-lg font-semibold hover:bg-primary-hover transition-all duration-200"
                 >
-                  Профиль
+                  Создать рекламу
                 </button>
               ) : (
                 <button
@@ -190,7 +190,7 @@ function AppContent() {
                     </span>
                   </h1>
                   <p className="text-xl md:text-2xl text-gray-600 mb-4 max-w-2xl mx-auto leading-relaxed">
-                    Генерируйте реалистичные видео в стиле инфлюенсеров, где AI-аватары держат и рассказывают о ваших продуктах. Готово для TikTok, Reels и Meta рекламы менее чем за 3 минуты.
+                    Создавайте профессиональные видео для соцсетей за пару кликов — никаких сложностей и ограничений. AI поможет вам выделиться и привлечь клиентов.
                   </p>
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                     <button
@@ -234,7 +234,6 @@ function AppContent() {
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-white to-blue-50/50" aria-hidden="true" />
               <div className="relative max-w-1140 mx-auto px-6 lg:px-8">
                 <div className="text-center mb-12">
-                  <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-2">Цифры, которые говорят</p>
                   <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Быстро. Масштабно. По всему миру.</h2>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -788,9 +787,6 @@ function AppContent() {
             <section className="py-24 relative bg-gradient-to-br from-primary via-blue-600 to-indigo-600 text-white overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-white/10 pointer-events-none" aria-hidden="true" />
               <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center relative">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/20 backdrop-blur mb-6">
-                  <Video className="w-8 h-8 text-white" />
-                </div>
                 <h2 className="text-heading2 text-white mb-6">
                   Готовы создать свое первое AI-видео?
                 </h2>

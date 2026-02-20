@@ -30,7 +30,7 @@ module.exports = {
       keyframes: {
         'infinite-scroll': {
           '0%': { transform: 'translateX(0)' },
-          '100%': { transform: 'translateX(-33.333%)' },
+          '100%': { transform: 'translateX(-25%)' },
         },
         float: {
           '0%, 100%': { transform: 'translateY(0)' },

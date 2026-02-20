@@ -25,6 +25,7 @@ class User extends Authenticatable
         'is_admin',
         'credits',
         'plan',
+        'is_blocked',
     ];
 
     /**
@@ -48,7 +49,13 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_admin' => 'boolean',
+            'is_blocked' => 'boolean',
         ];
+    }
+
+    public function isBlocked(): bool
+    {
+        return (bool) ($this->is_blocked ?? false);
     }
 
     public function hasCredits(int $amount = 1): bool

@@ -76,6 +76,26 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * Смена пароля (текущий пользователь, требуется старый пароль).
+     */
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required|string',
+            'password' => 'required|string|min:6|confirmed',
+        ]);
+
+        $user = $request->user();
+        if (!Hash::check($request->current_password, $user->password)) {
+            return response()->json(['message' => 'Неверный текущий пароль'], 422);
+        }
+
+        $user->update(['password' => $request->password]);
+
+        return response()->json(['message' => 'Пароль успешно изменён']);
+    }
+
     public function google()
     {
         // Редирект на Google OAuth

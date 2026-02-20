@@ -29,11 +29,11 @@ function AuthPage({ mode = 'login' }) {
       if (isLogin) {
         // Логин
         await api.login(formData.email, formData.password);
-        window.location.href = '/';
+        window.location.href = '/dashboard';
       } else {
         // Регистрация
         await api.register(formData.email, formData.password);
-        window.location.href = '/';
+        window.location.href = '/dashboard';
       }
     } catch (err) {
       setError(err.message || 'Произошла ошибка. Попробуйте снова.');

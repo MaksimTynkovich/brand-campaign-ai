@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class GenerationController extends Controller
 {
@@ -58,7 +59,17 @@ class GenerationController extends Controller
     public function start(StartGenerationRequest $request): JsonResponse
     {
         $user = $request->user();
-        if (!$user || !$user->hasCredits(1)) {
+        if (!$user) {
+            return response()->json([
+                'error' => ['message' => 'Unauthorized', 'code' => 401, 'details' => []],
+            ], 401);
+        }
+        if ($user->isBlocked()) {
+            return response()->json([
+                'error' => ['message' => 'Доступ к генерации видео заблокирован', 'code' => 403, 'details' => []],
+            ], 403);
+        }
+        if (!$user->hasCredits(1)) {
             return response()->json([
                 'error' => ['message' => 'Недостаточно кредитов', 'code' => 402, 'details' => []],
             ], 402);
@@ -142,6 +153,32 @@ class GenerationController extends Controller
         return response()->file($fullPath, [
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ]);
+    }
+
+    /**
+     * Отдать файл из storage (local) по подписанной ссылке. Нужно для Kie.ai (ожидает публичные URL изображений).
+     */
+    public function serveImage(Request $request): StreamedResponse|JsonResponse
+    {
+        $path = (string) $request->query('path');
+        if ($path === '' || str_contains($path, '..') || !str_starts_with($path, 'generation-input/')) {
+            return response()->json(['error' => ['message' => 'Invalid path', 'code' => 400, 'details' => []]], 400);
+        }
+
+        if (!Storage::disk('local')->exists($path)) {
+            return response()->json(['error' => ['message' => 'Not Found', 'code' => 404, 'details' => []]], 404);
+        }
+
+        $mime = Storage::disk('local')->mimeType($path) ?: 'application/octet-stream';
+
+        return response()->streamDownload(
+            function () use ($path) {
+                echo Storage::disk('local')->get($path);
+            },
+            basename($path),
+            ['Content-Type' => $mime],
+            'inline'
+        );
     }
 
     private function videoPathToStorageRelative(?string $videoPath): ?string

@@ -8,6 +8,9 @@ import DashboardBilling from '../components/dashboard/DashboardBilling';
 import MyVideos from '../components/dashboard/MyVideos';
 import AdminTemplates from '../components/dashboard/AdminTemplates';
 import AdminTemplateCategories from '../components/dashboard/AdminTemplateCategories';
+import AdminUsers from '../components/dashboard/AdminUsers';
+import AdminCarousel from '../components/dashboard/AdminCarousel';
+import DashboardSettings from '../components/dashboard/DashboardSettings';
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -37,8 +40,11 @@ function Dashboard() {
             <Route path="/" element={<DashboardHome />} />
             <Route path="my-videos" element={<MyVideos />} />
             <Route path="billing" element={<DashboardBilling />} />
+            <Route path="settings" element={<DashboardSettings />} />
+            <Route path="users" element={<AdminUsers />} />
             <Route path="templates" element={<AdminTemplates />} />
             <Route path="template-categories" element={<AdminTemplateCategories />} />
+            <Route path="carousel" element={<AdminCarousel />} />
           </Routes>
         </main>
       </div>
