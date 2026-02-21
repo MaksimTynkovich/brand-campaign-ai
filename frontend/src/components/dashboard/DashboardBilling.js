@@ -29,7 +29,7 @@ function DashboardBilling() {
               Email
             </a>
             <a
-              href="https://t.me/veydo"
+              href="https://t.me/veydoHelp"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[#0088cc]/10 text-[#0088cc] font-medium hover:bg-[#0088cc]/20 transition-colors"

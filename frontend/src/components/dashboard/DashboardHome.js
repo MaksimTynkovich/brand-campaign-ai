@@ -96,8 +96,8 @@ function DashboardHome() {
   };
 
   const closeModal = () => {
+    setActiveTemplateId(null);
     if (!generating) {
-      setActiveTemplateId(null);
       setResultVideoUrl(null);
       setGenError(null);
       setJobId(null);
@@ -240,6 +240,16 @@ function DashboardHome() {
       </section>
 
       {/* Модалка настройки шаблона — светлая, минималистичная */}
+      <style>{`
+        @keyframes floatFrame {
+          0%, 100% { transform: translateY(0) scale(1); opacity: 0.15; }
+          50% { transform: translateY(-12px) scale(1.05); opacity: 0.25; }
+        }
+        @keyframes shimmerBar {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(400%); }
+        }
+      `}</style>
       {activeTemplateId !== null && (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/30 p-4">
           <div className="bg-white text-gray-900 rounded-2xl shadow-2xl border border-gray-200 max-w-5xl w-full max-h-[90vh] overflow-y-auto">
@@ -249,8 +259,7 @@ function DashboardHome() {
               <button
                 type="button"
                 onClick={closeModal}
-                disabled={generating}
-                className="p-1.5 rounded-full hover:bg-gray-100 text-gray-500 disabled:opacity-50"
+                className="p-1.5 rounded-full hover:bg-gray-100 text-gray-500"
               >
                 <span className="sr-only">Закрыть</span>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -260,10 +269,39 @@ function DashboardHome() {
             </div>
 
             <div className="flex flex-col lg:flex-row">
-              {/* Левая колонка: превью или результат */}
+              {/* Левая колонка: превью, результат или анимация генерации */}
               <div className="lg:w-2/5 border-b lg:border-b-0 lg:border-r border-gray-200 p-4 flex flex-col gap-3">
                 <div className="relative rounded-2xl overflow-hidden bg-black aspect-[9/16] max-h-[min(520px,70vh)] w-full mx-auto">
-                  {resultVideoUrl ? (
+                  {generating ? (
+                    <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-900 via-primary/20 to-gray-900">
+                      <div className="relative flex items-center justify-center">
+                        {/* Пульсирующие кольца */}
+                        <span className="absolute w-24 h-24 rounded-full border-2 border-primary/40 animate-ping [animation-duration:2s]" />
+                        <span className="absolute w-20 h-20 rounded-full border-2 border-primary/50 animate-ping [animation-duration:2.5s] [animation-delay:0.3s]" />
+                        <span className="absolute w-16 h-16 rounded-full border-2 border-primary/60 animate-ping [animation-duration:2.2s] [animation-delay:0.6s]" />
+                        <div className="relative w-14 h-14 rounded-2xl bg-primary/90 flex items-center justify-center shadow-lg shadow-primary/30">
+                          <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
+                        </div>
+                      </div>
+                      {/* Плывущие «кадры» */}
+                      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                        {[0, 1, 2, 3].map((i) => (
+                          <div
+                            key={i}
+                            className="absolute w-12 h-16 rounded bg-white/5 border border-white/10"
+                            style={{
+                              left: `${15 + i * 25}%`,
+                              top: `${20 + (i % 2) * 45}%`,
+                              animation: `floatFrame 4s ease-in-out infinite`,
+                              animationDelay: `${i * 0.5}s`,
+                            }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  ) : resultVideoUrl ? (
                     <video
                       src={getStorageUrl(resultVideoUrl)}
                       controls
@@ -319,7 +357,7 @@ function DashboardHome() {
 
               </div>
 
-              {/* Правая колонка: форма и результат */}
+              {/* Правая колонка: форма, результат или экран генерации */}
               <div className="lg:w-3/5 p-4 sm:p-6 flex flex-col gap-4">
                 {genError && (
                   <div className="rounded-xl bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-700">
@@ -327,7 +365,19 @@ function DashboardHome() {
                   </div>
                 )}
 
-                {!resultVideoUrl && (
+                {generating ? (
+                  <div className="flex-1 flex flex-col items-center justify-center py-8 sm:py-12">
+                    <p className="text-xl font-semibold text-gray-900 mb-1">Создаём ваше видео</p>
+                    <p className="text-sm text-gray-500 mb-6">Обычно это занимает 2–3 минуты</p>
+                    <div className="w-full max-w-xs h-1.5 rounded-full bg-gray-200 overflow-hidden">
+                      <div
+                        className="h-full w-1/3 rounded-full bg-primary"
+                        style={{ animation: 'shimmerBar 2s ease-in-out infinite' }}
+                      />
+                    </div>
+                    <p className="text-xs text-gray-400 mt-4">ИИ обрабатывает кадры и собирает ролик</p>
+                  </div>
+                ) : !resultVideoUrl ? (
                   <>
                     <div>
                       <div className="flex items-center justify-between mb-2">
@@ -405,7 +455,7 @@ function DashboardHome() {
                       </div>
                     </div>
                   </>
-                )}
+                ) : null}
 
                 <div className="flex items-center justify-between pt-3 border-t border-gray-200">
                   <span className="text-[11px] text-gray-400">
@@ -415,10 +465,9 @@ function DashboardHome() {
                     <button
                       type="button"
                       onClick={closeModal}
-                      disabled={generating}
-                      className="px-4 py-2 text-xs sm:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 disabled:opacity-50"
+                      className="px-4 py-2 text-xs sm:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50"
                     >
-                      {resultVideoUrl ? 'Закрыть' : 'Отменить'}
+                      {resultVideoUrl ? 'Закрыть' : generating ? 'Закрыть' : 'Отменить'}
                     </button>
                     {!resultVideoUrl && (
                       <button

@@ -161,7 +161,7 @@ function MyVideos() {
           </div>
           <p className="text-lg font-medium text-gray-700 mb-2">Пока нет ни одного видео</p>
           <p className="text-gray-500 mb-6 max-w-sm mx-auto">
-            Выберите шаблон на главной дашборда и запустите генерацию — ролик появится здесь.
+            Выберите шаблон на главной и запустите генерацию — ролик появится здесь.
           </p>
           <Link
             to="/dashboard"

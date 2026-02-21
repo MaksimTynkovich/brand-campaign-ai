@@ -230,30 +230,30 @@ function AppContent() {
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-white to-blue-50/50" aria-hidden="true" />
               <div className="relative max-w-1140 mx-auto px-6 lg:px-8">
                 <div className="text-center mb-12">
-                  <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Быстро. Масштабно. По всему миру.</h2>
+                  <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Цифры, которые говорят сами за себя</h2>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="group bg-white rounded-2xl p-8 border border-gray-100 shadow-sm hover:shadow-xl hover:border-primary/30 transition-all duration-300 text-center">
                     <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/10 text-primary mb-6 group-hover:bg-primary group-hover:text-white transition-colors">
                       <Video className="w-7 h-7" />
                     </div>
-                    <div className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-2">Тысячи</div>
-                    <p className="text-gray-600 font-medium">готовых креативов уже в работе</p>
+                    <div className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-2">500+</div>
+                    <p className="text-gray-600 font-medium">готовых сцен и шаблонов в каталоге</p>
                   </div>
                   <div className="group bg-white rounded-2xl p-8 border border-gray-100 shadow-sm hover:shadow-xl hover:border-primary/30 transition-all duration-300 text-center relative md:shadow-lg md:scale-105">
-                    <span className="absolute top-4 right-4 text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded-full">Скорость</span>
+                    <span className="absolute top-4 right-4 text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded-full">Быстрее в 10×</span>
                     <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/10 text-primary mb-6 group-hover:bg-primary group-hover:text-white transition-colors">
                       <Lightning className="w-7 h-7" />
                     </div>
-                    <div className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-2">2.5 мин</div>
-                    <p className="text-gray-600 font-medium">от идеи до готового видео</p>
+                    <div className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-2">{'< 3 мин'}</div>
+                    <p className="text-gray-600 font-medium">ваше видео будет готово меньше чем за 3 минуты</p>
                   </div>
                   <div className="group bg-white rounded-2xl p-8 border border-gray-100 shadow-sm hover:shadow-xl hover:border-primary/30 transition-all duration-300 text-center">
                     <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/10 text-primary mb-6 group-hover:bg-primary group-hover:text-white transition-colors">
                       <Checkmark className="w-7 h-7" />
                     </div>
-                    <div className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-2">0</div>
-                    <p className="text-gray-600 font-medium">съёмок — всё генерирует AI</p>
+                    <div className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-2">24/7</div>
+                    <p className="text-gray-600 font-medium">без дедлайнов и очередей — генерируйте когда угодно</p>
                   </div>
                 </div>
               </div>
