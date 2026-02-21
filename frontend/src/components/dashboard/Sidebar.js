@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import api from '../../services/api';
 import Sparkles from '../../assets/icons/Sparkles';
+import Logo from '../../assets/Logo';
 
 function CreditCardIcon({ className }) {
   return (
@@ -142,15 +143,7 @@ function Sidebar({ isOpen, onToggle }) {
           {/* Logo */}
           <div className="flex items-center justify-between h-20 px-6 border-b border-gray-100">
             <Link to="/" className="flex items-center gap-3">
-              <div className="relative w-8 h-8">
-                <svg viewBox="0 0 32 32" className="w-8 h-8">
-                  <path
-                    d="M8 4C5.8 4 4 5.8 4 8v12c0 2.2 1.8 4 4 4h4l6 6v-6h6c2.2 0 4-1.8 4-4V8c0-2.2-1.8-4-4-4H8z"
-                    fill="#2588FF"
-                  />
-                  <circle cx="12" cy="14" r="2" fill="white" />
-                </svg>
-              </div>
+              <Logo className="w-8 h-8" ariaLabel="Veydo — на главную" />
               <span className="text-xl font-bold text-gray-900 tracking-tight">VEYDO</span>
             </Link>
             <button

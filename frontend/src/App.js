@@ -12,6 +12,7 @@ import Video from './assets/icons/Video';
 import Lightning from './assets/icons/Lightning';
 import Checkmark from './assets/icons/Checkmark';
 import api from './services/api';
+import Logo from './assets/Logo';
 
 function AppContent() {
   const [billingPeriod, setBillingPeriod] = useState('month'); // 'month' or 'year'
@@ -74,15 +75,7 @@ function AppContent() {
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
             <a href="/" className="flex items-center gap-3">
-              <div className="relative w-8 h-8">
-                <svg viewBox="0 0 32 32" className="w-8 h-8">
-                  <path
-                    d="M8 4C5.8 4 4 5.8 4 8v12c0 2.2 1.8 4 4 4h4l6 6v-6h6c2.2 0 4-1.8 4-4V8c0-2.2-1.8-4-4-4H8z"
-                    fill="#2588FF"
-                  />
-                  <circle cx="12" cy="14" r="2" fill="white" />
-                </svg>
-              </div>
+              <Logo className="w-8 h-8" ariaLabel="Veydo — на главную" />
               <span className="text-xl font-bold text-gray-900 tracking-tight">VEYDO</span>
             </a>
 
@@ -823,6 +816,12 @@ function AppContent() {
       <footer className="bg-gray-900 text-gray-400 border-t border-gray-800 relative">
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" aria-hidden="true" />
         <div className="max-w-1140 mx-auto px-6 lg:px-8 py-8">
+          <div className="flex justify-center mb-4">
+            <a href="/" className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors" aria-label="Veydo — на главную">
+              <Logo className="w-8 h-8" />
+              <span className="text-lg font-bold tracking-tight">VEYDO</span>
+            </a>
+          </div>
           <p className="text-center text-sm text-gray-500 max-w-xl mx-auto mb-6">
             AI‑реклама нового поколения — запускай и смотри, как лиды летят к тебе! Вирально, мощно, именно то, что нужно для роста.
           </p>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../services/api';
+import Logo from '../assets/Logo';
 
 function AuthPage({ mode = 'login' }) {
   const [isLogin, setIsLogin] = useState(mode === 'login');
@@ -66,15 +67,7 @@ function AuthPage({ mode = 'login' }) {
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <div className="flex justify-center mb-6">
-            <div className="relative w-12 h-12">
-              <svg viewBox="0 0 32 32" className="w-12 h-12">
-                <path
-                  d="M8 4C5.8 4 4 5.8 4 8v12c0 2.2 1.8 4 4 4h4l6 6v-6h6c2.2 0 4-1.8 4-4V8c0-2.2-1.8-4-4-4H8z"
-                  fill="#2588FF"
-                />
-                <circle cx="12" cy="14" r="2" fill="white" />
-              </svg>
-            </div>
+            <Logo className="w-12 h-12" ariaLabel="Veydo" />
           </div>
           <h2 className="text-3xl font-bold text-gray-900">
             {isLogin ? 'Вход в аккаунт' : 'Создать аккаунт'}
