@@ -104,10 +104,7 @@ function DashboardHome() {
 
   return (
     <div className="p-6 lg:p-8">
-      {/* Templates section */}
       <section className="mb-10">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4 tracking-tight">Шаблоны для быстрого старта</h2>
-
         {/* Categories pills — только когда есть категории с API */}
         {categories.length > 0 && (
           <div className="mb-4 overflow-x-auto">
