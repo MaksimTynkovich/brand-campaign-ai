@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import api, { getStorageUrl } from '../../services/api';
 
 const POLL_INTERVAL_MS = 2000;
@@ -21,6 +22,8 @@ function DashboardHome() {
   const [exampleSoundOn, setExampleSoundOn] = useState(true);
   const [cardSoundOn, setCardSoundOn] = useState({});
   const cardVideoRefs = useRef({});
+  const [photoTipOpen, setPhotoTipOpen] = useState(false);
+  const [photoTipAnchor, setPhotoTipAnchor] = useState({ left: 0, top: 0 });
 
   useEffect(() => {
     setTemplatesLoading(true);
@@ -329,7 +332,33 @@ function DashboardHome() {
                     <div>
                       <div className="flex items-center justify-between mb-2">
                         <h4 className="text-sm font-medium text-gray-900">Фото продукта</h4>
-                        <span className="text-[11px] text-gray-400">Опционально, до 2 фото</span>
+                        <span
+                          className="text-[11px] text-primary cursor-help border-b border-dashed border-primary/50"
+                          onMouseEnter={(e) => {
+                            const r = e.currentTarget.getBoundingClientRect();
+                            setPhotoTipAnchor({ left: r.left, top: r.bottom + 6 });
+                            setPhotoTipOpen(true);
+                          }}
+                          onMouseLeave={() => setPhotoTipOpen(false)}
+                        >
+                          Подсказка
+                        </span>
+                        {photoTipOpen && createPortal(
+                          <div
+                            className="fixed w-72 p-3.5 text-left bg-white border border-gray-200 rounded-xl shadow-xl z-[9999]"
+                            style={{ left: photoTipAnchor.left, top: photoTipAnchor.top }}
+                            onMouseEnter={() => setPhotoTipOpen(true)}
+                            onMouseLeave={() => setPhotoTipOpen(false)}
+                          >
+                            <p className="text-sm text-gray-700 leading-snug">
+                              Загружайте фото продукта с разных ракурсов — так результат генерации будет качественнее.
+                            </p>
+                            <p className="text-sm text-gray-700 leading-snug mt-2 pt-2 border-t border-gray-100">
+                              Не загружайте фото с людьми в кадре: для ИИ подходят только изображения самого продукта.
+                            </p>
+                          </div>,
+                          document.body
+                        )}
                       </div>
                       <p className="text-xs text-gray-500 mb-2">
                         Если не загружаете — используются референсы шаблона.
