@@ -42,7 +42,7 @@ module.exports = {
         },
       },
       animation: {
-        'infinite-scroll': 'infinite-scroll 10s linear infinite',
+        'infinite-scroll': 'infinite-scroll 6.67s linear infinite',
         'float': 'float 8s ease-in-out infinite',
         'fade-in-up': 'fade-in-up 0.6s ease-out forwards',
       },
