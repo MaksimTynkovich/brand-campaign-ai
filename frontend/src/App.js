@@ -52,7 +52,7 @@ function AppContent() {
 
   const handlePrimaryCta = () => {
     if (!api.isAuthenticated()) {
-      navigate('/login');
+      navigate('/register');
       return;
     }
     navigate('/dashboard');
@@ -87,14 +87,20 @@ function AppContent() {
             </a>
 
             {/* Navigation Links — десктоп */}
-            <nav className="hidden md:flex items-center gap-8">
-              <a href="#demo" className="text-gray-700 hover:text-gray-900 font-medium transition-colors">
+            <nav className="hidden md:flex items-center gap-6 lg:gap-8">
+              <a href="#demo" className="text-gray-700 hover:text-gray-900 font-medium transition-colors whitespace-nowrap">
                 Демо
               </a>
-              <a href="#features" className="text-gray-700 hover:text-gray-900 font-medium transition-colors">
+              <a href="#steps" className="text-gray-700 hover:text-gray-900 font-medium transition-colors whitespace-nowrap">
+                Как это работает
+              </a>
+              <a href="#features" className="text-gray-700 hover:text-gray-900 font-medium transition-colors whitespace-nowrap">
                 Функции
               </a>
-              <a href="#pricing" className="text-gray-700 hover:text-gray-900 font-medium transition-colors">
+              <a href="#why" className="text-gray-700 hover:text-gray-900 font-medium transition-colors whitespace-nowrap">
+                Сравнение
+              </a>
+              <a href="#pricing" className="text-gray-700 hover:text-gray-900 font-medium transition-colors whitespace-nowrap">
                 Тарифы
               </a>
             </nav>
@@ -139,28 +145,25 @@ function AppContent() {
         </div>
         {/* Мобильное меню — выезжающая панель */}
         {mobileMenuOpen && (
-          <div className="md:hidden absolute top-full left-0 right-0 bg-white border-b border-gray-200 shadow-lg">
+          <div className="md:hidden absolute top-full left-0 right-0 bg-white border-b border-gray-200 shadow-lg max-h-[80vh] overflow-y-auto">
             <nav className="flex flex-col py-4 px-6 gap-1">
-              <a
-                href="#demo"
-                onClick={() => setMobileMenuOpen(false)}
-                className="py-3 px-4 rounded-xl text-gray-700 hover:bg-gray-100 hover:text-gray-900 font-medium"
-              >
+              <a href="#demo" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 rounded-xl text-gray-700 hover:bg-gray-100 hover:text-gray-900 font-medium">
                 Демо
               </a>
-              <a
-                href="#features"
-                onClick={() => setMobileMenuOpen(false)}
-                className="py-3 px-4 rounded-xl text-gray-700 hover:bg-gray-100 hover:text-gray-900 font-medium"
-              >
+              <a href="#steps" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 rounded-xl text-gray-700 hover:bg-gray-100 hover:text-gray-900 font-medium">
+                Как это работает
+              </a>
+              <a href="#features" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 rounded-xl text-gray-700 hover:bg-gray-100 hover:text-gray-900 font-medium">
                 Функции
               </a>
-              <a
-                href="#pricing"
-                onClick={() => setMobileMenuOpen(false)}
-                className="py-3 px-4 rounded-xl text-gray-700 hover:bg-gray-100 hover:text-gray-900 font-medium"
-              >
+              <a href="#why" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 rounded-xl text-gray-700 hover:bg-gray-100 hover:text-gray-900 font-medium">
+                Сравнение
+              </a>
+              <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 rounded-xl text-gray-700 hover:bg-gray-100 hover:text-gray-900 font-medium">
                 Тарифы
+              </a>
+              <a href="#faq" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 rounded-xl text-gray-700 hover:bg-gray-100 hover:text-gray-900 font-medium">
+                Вопросы
               </a>
             </nav>
           </div>
@@ -264,7 +267,7 @@ function AppContent() {
             </section>
 
             {/* 3 Steps Section */}
-            <section className="py-24 bg-mesh-warm">
+            <section id="steps" className="py-24 bg-mesh-warm scroll-mt-20">
               <div className="max-w-1140 mx-auto px-6 lg:px-8">
                 <div className="text-center mb-16">
                   <h2 className="text-heading2 text-gray-900 mb-4">
@@ -411,7 +414,7 @@ function AppContent() {
             </section>
 
             {/* AI vs Manual Section — визуально динамичнее, с иконками и эффектами */}
-            <section className="py-24 bg-gradient-to-b from-slate-50 via-blue-50/30 to-slate-50 relative overflow-hidden">
+            <section id="why" className="py-24 bg-gradient-to-b from-slate-50 via-blue-50/30 to-slate-50 relative overflow-hidden scroll-mt-20">
               {/* Фоновая анимация блёклых иконок */}
               <div className="pointer-events-none absolute inset-0 select-none z-0">
                 <svg className="absolute top-10 left-[-60px] w-36 h-36 opacity-10 animate-float-slow" fill="none" viewBox="0 0 100 100">
@@ -469,7 +472,7 @@ function AppContent() {
                   };
                   const rows = [
                     { criterion: 'Время', ai: 'Менее 3 минут на один креатив от идеи до готового видео', manual: 'Дни или недели: кастинг, съёмка, монтаж, согласования' },
-                    { criterion: 'Прайс', ai: 'От $39/мес — десятки видео в рамках подписки, без скрытых платежей', manual: 'От $500–2000 за ролик + права, рекламные пакеты, доработки' },
+                    { criterion: 'Прайс', ai: 'От $19/мес — десятки видео в рамках подписки, без скрытых платежей', manual: 'От $500–2000 за ролик + права, рекламные пакеты, доработки' },
                     { criterion: 'Масштаб', ai: 'Десятки вариантов в день: разные сценарии, хуки, форматы под тесты', manual: 'Обычно 1–3 варианта за цикл; больше — кратный рост бюджета' },
                     { criterion: 'Итерации', ai: 'Правки сценария и перегенерация за минуты, без доплат', manual: 'Любая правка — пересъёмка или долгий монтаж, часто за доплату' },
                     { criterion: 'Языки', ai: '35+ языков: сценарий, озвучка и субтитры из одного интерфейса', manual: 'Отдельный инфлюенсер или дубляж на каждый язык, дороже и дольше' },
@@ -610,25 +613,25 @@ function AppContent() {
                     {
                       name: 'Старт',
                       desc: 'Попробовать сервис и сделать первые креативы',
-                      monthPrice: 39,
-                      yearPrice: 31,
+                      monthPrice: 19,
+                      yearPrice: 15,
                       videos: 25,
                       popular: false
                     },
                     {
                       name: 'Профессионал',
                       desc: 'Для регулярной рекламы и большего объёма',
-                      monthPrice: 79,
-                      yearPrice: 63,
-                      videos: 70,
+                      monthPrice: 49,
+                      yearPrice: 39,
+                      videos: 60,
                       popular: true
                     },
                     {
                       name: 'Бизнес',
                       desc: 'Для команд и высокого объёма генерации',
-                      monthPrice: 149,
-                      yearPrice: 119,
-                      videos: 150,
+                      monthPrice: 119,
+                      yearPrice: 95,
+                      videos: 130,
                       popular: false
                     },
                   ].map((plan, index) => {
@@ -711,7 +714,7 @@ function AppContent() {
             </section>
 
             {/* FAQ Section */}
-            <section className="py-24 bg-gray-50 bg-mesh">
+            <section id="faq" className="py-24 bg-gray-50 bg-mesh scroll-mt-20">
               <div className="max-w-3xl mx-auto px-6 lg:px-8">
                 <div className="text-center mb-16">
                   <h2 className="text-heading2 text-gray-900 mb-4">
