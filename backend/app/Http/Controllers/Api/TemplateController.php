@@ -7,11 +7,16 @@ use App\Http\Requests\StoreTemplateRequest;
 use App\Http\Requests\UpdateTemplateRequest;
 use App\Models\TemplateCategory;
 use App\Models\Template;
+use App\Services\MediaOptimizerService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
 
 class TemplateController extends Controller
 {
+    public function __construct(
+        private MediaOptimizerService $mediaOptimizer
+    ) {}
+
     public function index(\Illuminate\Http\Request $request): JsonResponse
     {
         $query = Template::query()->orderBy('sort_order');
@@ -42,20 +47,32 @@ class TemplateController extends Controller
         $data['sort_order'] = $data['sort_order'] ?? 0;
 
         if ($request->hasFile('preview')) {
-            $data['preview_url'] = $request->file('preview')->store('templates', 'public');
+            $data['preview_url'] = $this->mediaOptimizer->storeOptimizedImage(
+                $request->file('preview'),
+                'templates',
+                'public'
+            );
         }
 
         $template = Template::create($data);
 
         if ($request->hasFile('example_video')) {
-            $data['example_video_path'] = $request->file('example_video')->store('templates/videos', 'public');
+            $data['example_video_path'] = $this->mediaOptimizer->storeOptimizedVideo(
+                $request->file('example_video'),
+                'templates/videos',
+                'public'
+            );
             $template->update(['example_video_path' => $data['example_video_path']]);
         }
 
         if ($request->hasFile('reference_images')) {
             $paths = [];
             foreach ($request->file('reference_images') as $file) {
-                $paths[] = $file->store('templates/reference/' . $template->id, 'public');
+                $paths[] = $this->mediaOptimizer->storeOptimizedImage(
+                    $file,
+                    'templates/reference/' . $template->id,
+                    'public'
+                );
             }
             $template->update(['reference_images' => $paths]);
         }
@@ -76,7 +93,11 @@ class TemplateController extends Controller
             if ($template->getRawOriginal('preview_url')) {
                 Storage::disk('public')->delete($template->getRawOriginal('preview_url'));
             }
-            $data['preview_url'] = $request->file('preview')->store('templates', 'public');
+            $data['preview_url'] = $this->mediaOptimizer->storeOptimizedImage(
+                $request->file('preview'),
+                'templates',
+                'public'
+            );
         }
 
         if ($request->hasFile('example_video')) {
@@ -84,7 +105,11 @@ class TemplateController extends Controller
             if (is_string($raw) && !str_starts_with($raw, 'http')) {
                 Storage::disk('public')->delete($raw);
             }
-            $data['example_video_path'] = $request->file('example_video')->store('templates/videos', 'public');
+            $data['example_video_path'] = $this->mediaOptimizer->storeOptimizedVideo(
+                $request->file('example_video'),
+                'templates/videos',
+                'public'
+            );
         }
 
         if ($request->hasFile('reference_images')) {
@@ -98,7 +123,11 @@ class TemplateController extends Controller
             }
             $paths = [];
             foreach ($request->file('reference_images') as $file) {
-                $paths[] = $file->store('templates/reference/' . $template->id, 'public');
+                $paths[] = $this->mediaOptimizer->storeOptimizedImage(
+                    $file,
+                    'templates/reference/' . $template->id,
+                    'public'
+                );
             }
             $data['reference_images'] = $paths;
         }

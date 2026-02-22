@@ -20,12 +20,13 @@ class AuthController extends Controller
         // Извлекаем имя из email (часть до @)
         $name = explode('@', $request->email)[0];
 
-        // Создаем нового пользователя в БД
+        // Создаем нового пользователя в БД (тариф starter, 3 кредита)
         $user = User::create([
-            'name' => ucfirst($name), // Делаем первую букву заглавной
+            'name' => ucfirst($name),
             'email' => $request->email,
-            // каст "hashed" в модели сам захэширует пароль
             'password' => $request->password,
+            'plan' => 'starter',
+            'credits' => 3,
         ]);
 
         // Генерируем Sanctum-токен
@@ -38,7 +39,7 @@ class AuthController extends Controller
                 'email' => $user->email,
                 'is_admin' => (bool) $user->is_admin,
                 'credits' => (int) ($user->credits ?? 0),
-                'plan' => $user->plan ?? 'trial',
+                'plan' => $user->plan ?? 'starter',
             ],
             'token' => $token,
             'message' => 'Регистрация успешна',

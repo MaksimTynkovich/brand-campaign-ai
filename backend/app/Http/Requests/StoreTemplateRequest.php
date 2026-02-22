@@ -26,4 +26,10 @@ class StoreTemplateRequest extends FormRequest
         ];
     }
 
+    public function messages(): array
+    {
+        return [
+            'example_video.uploaded' => 'Видео не загрузилось. Часто это из‑за лимита размера: проверьте на сервере PHP upload_max_filesize и post_max_size (и nginx client_max_body_size).',
+        ];
+    }
 }

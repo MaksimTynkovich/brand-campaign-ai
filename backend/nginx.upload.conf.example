@@ -1,0 +1,9 @@
+# Сниппет для увеличения лимита загрузки (избежать 413 Request Entity Too Large).
+# Подключите в server { } для API, куда загружаются шаблоны (фото + видео + референсы).
+
+client_max_body_size 200M;
+
+# Если PHP обрабатывается через FastCGI, лимиты PHP задаются в php.ini:
+#   upload_max_filesize = 200M
+#   post_max_size = 200M
+# (post_max_size должен быть >= суммы всех загружаемых файлов.)

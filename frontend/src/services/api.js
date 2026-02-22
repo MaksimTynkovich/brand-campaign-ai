@@ -41,14 +41,19 @@ class ApiService {
       const data = text ? JSON.parse(text) : {};
 
       if (!response.ok) {
-        throw new Error(data.error?.message || data.message || 'Request failed');
+        const err = new Error(data.error?.message || data.message || 'Request failed');
+        err.status = response.status;
+        throw err;
       }
 
       return data;
     } catch (error) {
+      const status = error.status;
+      const isClientError = status >= 400 && status < 500;
       if (error instanceof SyntaxError) {
         console.error('API Error: invalid or empty JSON response');
-      } else {
+      } else if (!isClientError) {
+        // Логируем только сетевые и серверные ошибки (5xx), не ожидаемые 4xx
         console.error('API Error:', error);
       }
       throw error;

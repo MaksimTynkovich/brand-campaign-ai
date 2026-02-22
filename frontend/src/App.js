@@ -4,6 +4,7 @@ import ProductPage from './pages/ProductPage';
 import AuthPage from './pages/AuthPage';
 import Dashboard from './pages/Dashboard';
 import LegalPage from './pages/LegalPage';
+import NotFoundPage from './pages/NotFoundPage';
 import VideoCarousel from './components/VideoCarousel';
 import Sparkles from './assets/icons/Sparkles';
 import Package from './assets/icons/Package';
@@ -856,6 +857,7 @@ function App() {
         <Route path="/dashboard/*" element={<Dashboard />} />
         <Route path="/privacy" element={<LegalPage type="privacy" />} />
         <Route path="/terms" element={<LegalPage type="terms" />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Router>
   );

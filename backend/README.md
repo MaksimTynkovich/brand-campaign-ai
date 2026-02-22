@@ -54,6 +54,47 @@ In order to ensure that the Laravel community is welcoming to all, please review
 
 If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
 
+## Deployment: 413 Request Entity Too Large
+
+При загрузке шаблонов (фото, видео, референсы) сервер может вернуть **413 Request Entity Too Large**. Нужно увеличить лимит размера тела запроса.
+
+**Nginx** — в блок `server { }` (или в `http { }`) добавьте:
+
+```nginx
+client_max_body_size 200M;
+```
+
+Пример полного сниппета: [nginx.upload.conf.example](nginx.upload.conf.example). После правок выполните `nginx -t` и перезапустите nginx.
+
+**PHP** (если запрос доходит до PHP, но файлы не приходят) — в `php.ini`:
+
+```ini
+upload_max_filesize = 200M
+post_max_size = 200M
+```
+
+`post_max_size` должен быть не меньше суммы размеров всех загружаемых файлов в одном запросе.
+
+### Локальная разработка (php artisan serve)
+
+На локалке лимиты тоже задаёт PHP. Если видео не загружается («failed to upload»), поднимите лимиты в **том php.ini, который использует ваш PHP**:
+
+1. Узнайте, какой `php.ini` используется:
+   ```bash
+   php --ini
+   ```
+   Смотрите строку «Loaded Configuration File».
+
+2. В этом файле выставите (или добавьте):
+   ```ini
+   upload_max_filesize = 200M
+   post_max_size = 200M
+   ```
+
+3. Перезапустите `php artisan serve` (и при необходимости терминал).
+
+На macOS с Homebrew PHP конфиг часто лежит в `/opt/homebrew/etc/php/8.x/php.ini` или `/usr/local/etc/php/8.x/php.ini`.
+
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
