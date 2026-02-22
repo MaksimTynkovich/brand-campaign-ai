@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import api from '../services/api';
+import api, { API_ORIGIN } from '../services/api';
 import CreativeView from '../components/CreativeView';
 import Video from '../assets/icons/Video';
 
@@ -162,7 +162,7 @@ function ProductPage({ onBack }) {
               {product.images.map((image, index) => (
                 <img
                   key={index}
-                  src={`http://localhost:8000/storage/${image}`}
+                  src={`${API_ORIGIN}/storage/${image}`}
                   alt={`${product.name} ${index + 1}`}
                   className="w-56 h-56 object-cover rounded-xl border-2 border-gray-200 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300"
                   onError={(e) => {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import api from '../services/api';
+import api, { API_ORIGIN } from '../services/api';
 import Download from '../assets/icons/Download';
 import Document from '../assets/icons/Document';
 
@@ -101,7 +101,7 @@ function CreativeView({ creative, product }) {
               <video
                 controls
                 className="w-full max-w-md rounded-xl bg-black shadow-lg border-2 border-gray-200"
-                src={`http://localhost:8000/storage/${creative.video_path}`}
+                src={`${API_ORIGIN}/storage/${creative.video_path}`}
               >
                 Ваш браузер не поддерживает видео.
               </video>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import api from '../services/api';
+import api, { API_ORIGIN } from '../services/api';
 import Sparkles from '../assets/icons/Sparkles';
 
 function ProductList({ onSelectProduct, onCreateNew }) {
@@ -97,7 +97,7 @@ function ProductList({ onSelectProduct, onCreateNew }) {
                   {product.images.slice(0, 3).map((image, index) => (
                     <img
                       key={index}
-                      src={`http://localhost:8000/storage/${image}`}
+                      src={`${API_ORIGIN}/storage/${image}`}
                       alt={`${product.name} ${index + 1}`}
                       className="w-20 h-20 object-cover rounded-lg border border-gray-200"
                       onError={(e) => {

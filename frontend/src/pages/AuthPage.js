@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import api from '../services/api';
+import api, { API_ORIGIN } from '../services/api';
 import Logo from '../assets/Logo';
 
 function AuthPage({ mode = 'login' }) {
@@ -51,7 +51,7 @@ function AuthPage({ mode = 'login' }) {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/api/auth/google`);
+      const response = await fetch(`${API_ORIGIN}/api/auth/google`);
       const data = await response.json();
       if (data.url) window.location.href = data.url;
       else throw new Error('Не удалось получить URL для авторизации');

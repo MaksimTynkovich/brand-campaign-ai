@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { API_ORIGIN } from '../../services/api';
 import Package from '../../assets/icons/Package';
 
 function RecentProjects({ projects, onViewAll, onSelectProject }) {
@@ -47,7 +48,7 @@ function RecentProjects({ projects, onViewAll, onSelectProject }) {
               <img
                 src={typeof project.images[0] === 'string' && project.images[0].startsWith('http') 
                   ? project.images[0] 
-                  : `http://localhost:8000/storage/${project.images[0]}`}
+                  : `${API_ORIGIN}/storage/${project.images[0]}`}
                 alt={project.name}
                 className="w-12 h-12 object-cover rounded-lg border border-gray-200 flex-shrink-0"
                 onError={(e) => {

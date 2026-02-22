@@ -1,5 +1,6 @@
 export const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
-const API_ORIGIN = API_BASE_URL.replace(/\/api\/?$/, '');
+/** Origin бэкенда без /api — для storage URL и редиректов (например, OAuth). */
+export const API_ORIGIN = API_BASE_URL.replace(/\/api\/?$/, '');
 
 /**
  * Подставляет origin бэкенда для URL storage, если пришли ссылки с localhost без порта.

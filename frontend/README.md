@@ -26,6 +26,8 @@ npm start
 REACT_APP_API_URL=http://your-api-url/api
 ```
 
+**Важно для продакшена:** при деплое (например, на veydo.cc) обязательно задайте `REACT_APP_API_URL` на этапе сборки (например, `REACT_APP_API_URL=https://api.veydo.cc/api`). Иначе в браузере будет подставляться `http://localhost:8000`, и запросы заблокирует CORS (доступ с публичного сайта к loopback запрещён).
+
 ## Структура проекта
 
 ```
