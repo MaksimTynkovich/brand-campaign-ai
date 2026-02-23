@@ -29,7 +29,11 @@
     ▼
   ProcessGenerationJob::handle()
     │  • status → processing
-    │  • PromptMergeService::merge()  (шаблон + текст пользователя)
+    │  • Есть фото пользователя?
+    │       ДА → PromptMergeService::mergeWithVision(шаблон, текст, imageItems)
+    │            — изображения в base64 уходят в OpenAI (gpt-4o-mini vision), итог: один промпт на английском под продукт
+    │       НЕТ → PromptMergeService::merge(шаблон, текст)  (как раньше)
+    │  • job.merged_prompt = результат
     │  • VeoService::generate($mergedPrompt, $imagePaths)
     │       │
     │       ▼
@@ -54,7 +58,7 @@
 | Приём старта | `backend/app/Http/Controllers/Api/GenerationController.php` | `start()`, `status()` |
 | Постановка в очередь | `backend/app/Http/Controllers/Api/GenerationController.php` | `ProcessGenerationJob::dispatch($job)` |
 | Обработка очереди | `backend/app/Jobs/ProcessGenerationJob.php` | `handle()` |
-| Слияние промпта | `backend/app/Services/PromptMergeService.php` | `merge()` |
+| Слияние промпта | `backend/app/Services/PromptMergeService.php` | `merge()` (только текст), `mergeWithVision()` (шаблон + текст + фото продукта → GPT vision) |
 | Генерация видео | `backend/app/Services/VeoService.php` | `generate()` |
 | Запросы к Kie.ai | `backend/app/Services/KieVeoService.php` | `createTask()`, `getTaskDetails()` |
 
@@ -71,6 +75,11 @@
 2. **Переменная окружения** в `backend/.env`:
    ```env
    KIE_VEO_API_KEY=ваш_ключ
+   ```
+
+   Для мержа промпта с учётом фото продукта (vision) дополнительно:
+   ```env
+   OPENAI_API_KEY=ваш_ключ   # gpt-4o-mini с vision
    ```
 
 ## Как проверить, что запросы уходят
