@@ -49,7 +49,7 @@ class KieVeoService
             'prompt' => $prompt,
             'model' => $model,
             'aspect_ratio' => $aspectRatio,
-            'generationType' => empty($imageUrls) ? 'TEXT_2_VIDEO' : (count($imageUrls) >= 2 ? 'FIRST_AND_LAST_FRAMES_2_VIDEO' : 'REFERENCE_2_VIDEO'),
+            'generationType' => empty($imageUrls) ? 'TEXT_2_VIDEO' : 'REFERENCE_2_VIDEO',
             'enableTranslation' => true,
         ];
 
