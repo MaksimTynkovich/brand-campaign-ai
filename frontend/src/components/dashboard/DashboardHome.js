@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { Link } from 'react-router-dom';
 import api, { getStorageUrl } from '../../services/api';
 
 const POLL_INTERVAL_MS = 2000;
@@ -103,6 +104,17 @@ function DashboardHome() {
       setJobId(null);
       setImages([null, null]);
     }
+  };
+
+  const startOver = () => {
+    setResultVideoUrl(null);
+    setGenError(null);
+    setJobId(null);
+  };
+
+  const retryGeneration = () => {
+    setGenError(null);
+    handleGenerate();
   };
 
   return (
@@ -359,13 +371,41 @@ function DashboardHome() {
 
               {/* Правая колонка: форма, результат или экран генерации */}
               <div className="lg:w-3/5 p-4 sm:p-6 flex flex-col gap-4">
-                {genError && (
-                  <div className="rounded-xl bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-700">
-                    {genError}
+                {resultVideoUrl ? (
+                  <div className="flex-1 flex flex-col items-center justify-center py-8 sm:py-12 text-center">
+                    <div className="w-16 h-16 rounded-2xl bg-emerald-100 flex items-center justify-center mb-5 shadow-lg shadow-emerald-500/20">
+                      <svg className="w-9 h-9 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-2">Готово!</h3>
+                    <p className="text-gray-600 mb-8 max-w-sm">
+                      Видео создано. Посмотрите превью слева, скачайте его или создайте ещё одно.
+                    </p>
+                    <div className="flex flex-wrap items-center justify-center gap-3">
+                      <button
+                        type="button"
+                        onClick={startOver}
+                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white font-semibold rounded-xl hover:opacity-90 transition-opacity"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        Создать ещё
+                      </button>
+                      <Link
+                        to="/dashboard/my-videos"
+                        onClick={closeModal}
+                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-colors"
+                      >
+                        В мои видео
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                        </svg>
+                      </Link>
+                    </div>
                   </div>
-                )}
-
-                {generating ? (
+                ) : generating ? (
                   <div className="flex-1 flex flex-col items-center justify-center py-8 sm:py-12">
                     <p className="text-xl font-semibold text-gray-900 mb-1">Создаём ваше видео</p>
                     <p className="text-sm text-gray-500 mb-6">Обычно это занимает 2–3 минуты</p>
@@ -377,7 +417,129 @@ function DashboardHome() {
                     </div>
                     <p className="text-xs text-gray-400 mt-4">ИИ обрабатывает кадры и собирает ролик</p>
                   </div>
-                ) : !resultVideoUrl ? (
+                ) : genError ? (
+                  <>
+                    <div className="rounded-2xl border-2 border-red-100 bg-red-50/90 p-5 sm:p-6">
+                      <div className="flex items-start gap-4">
+                        <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center">
+                          <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-semibold text-red-900 mb-1">Не удалось создать видео</h4>
+                          <p className="text-sm text-red-700 mb-4">{genError}</p>
+                          <div className="flex flex-wrap gap-3">
+                            <button
+                              type="button"
+                              onClick={retryGeneration}
+                              disabled={generating}
+                              className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded-xl hover:bg-red-700 disabled:opacity-60 transition-colors"
+                            >
+                              {generating ? (
+                                <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                </svg>
+                              ) : (
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                              )}
+                              {generating ? 'Повторная попытка…' : 'Повторить попытку'}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setGenError(null)}
+                              disabled={generating}
+                              className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-red-200 text-red-700 text-sm font-medium rounded-xl hover:bg-red-50 disabled:opacity-60 transition-colors"
+                            >
+                              Изменить параметры
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    {!generating && (
+                      <>
+                        <div>
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="text-sm font-medium text-gray-900">Фото продукта</h4>
+                            <span
+                              className="text-[11px] text-primary cursor-help border-b border-dashed border-primary/50"
+                              onMouseEnter={(e) => {
+                                const r = e.currentTarget.getBoundingClientRect();
+                                setPhotoTipAnchor({ left: r.left, top: r.bottom + 6 });
+                                setPhotoTipOpen(true);
+                              }}
+                              onMouseLeave={() => setPhotoTipOpen(false)}
+                            >
+                              Подсказка
+                            </span>
+                            {photoTipOpen && createPortal(
+                              <div
+                                className="fixed w-72 p-3.5 text-left bg-white border border-gray-200 rounded-xl shadow-xl z-[9999]"
+                                style={{ left: photoTipAnchor.left, top: photoTipAnchor.top }}
+                                onMouseEnter={() => setPhotoTipOpen(true)}
+                                onMouseLeave={() => setPhotoTipOpen(false)}
+                              >
+                                <p className="text-sm text-gray-700 leading-snug">
+                                  Загружайте фото продукта с разных ракурсов — так результат генерации будет качественнее.
+                                </p>
+                                <p className="text-sm text-gray-700 leading-snug mt-2 pt-2 border-t border-gray-100">
+                                  Не загружайте фото с людьми в кадре: для ИИ подходят только изображения самого продукта.
+                                </p>
+                              </div>,
+                              document.body
+                            )}
+                          </div>
+                          <p className="text-xs text-gray-500 mb-2">
+                            Если не загружаете — используются референсы шаблона.
+                          </p>
+                          <div className="flex gap-2 max-w-[200px]">
+                            {[0, 1].map((slot) => (
+                              <label key={slot} className="cursor-pointer flex-1 min-w-0">
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  className="hidden"
+                                  onChange={(e) => setImageAt(slot, e.target.files?.[0] || null)}
+                                />
+                                <div className="aspect-square w-full max-w-[92px] rounded-lg border border-dashed border-gray-300 bg-gray-50 flex flex-col items-center justify-center text-[11px] text-gray-500 hover:border-primary hover:text-primary transition-colors overflow-hidden">
+                                  {images[slot] ? (
+                                    <span className="px-2 truncate w-full text-center text-gray-700">
+                                      {images[slot].name}
+                                    </span>
+                                  ) : (
+                                    <>
+                                      <span className="text-lg mb-1">+</span>
+                                      Фото {slot + 1}
+                                    </>
+                                  )}
+                                </div>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="flex-1 flex flex-col">
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="text-sm font-medium text-gray-900">Описание</h4>
+                          </div>
+                          <textarea
+                            value={promptText}
+                            onChange={(e) => setPromptText(e.target.value.slice(0, 5000))}
+                            rows={6}
+                            placeholder={activeTemplate?.default_voiceover ?? ''}
+                            className="w-full h-40 sm:h-44 lg:h-48 bg-white border border-gray-300 rounded-2xl px-3 sm:px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary resize-none"
+                          />
+                          <div className="mt-1 text-[11px] text-gray-400 text-right">
+                            {promptText.length} / 5000
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </>
+                ) : (
                   <>
                     <div>
                       <div className="flex items-center justify-between mb-2">
@@ -455,7 +617,7 @@ function DashboardHome() {
                       </div>
                     </div>
                   </>
-                ) : null}
+                )}
 
                 <div className="flex items-center justify-between pt-3 border-t border-gray-200">
                   <span className="text-[11px] text-gray-400">
