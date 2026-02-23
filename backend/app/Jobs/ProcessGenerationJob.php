@@ -47,15 +47,26 @@ class ProcessGenerationJob implements ShouldQueue
             return;
         }
 
-        $mergedPrompt = $promptMerge->merge(
-            $template->original_prompt,
-            (string) $job->user_prompt,
-            $job->id,
-            $job->user_id
-        );
+        $userImageItems = $this->resolveImagePaths($job);
+
+        if (count($userImageItems) > 0) {
+            $mergedPrompt = $promptMerge->mergeWithVision(
+                $template->original_prompt,
+                (string) $job->user_prompt,
+                $userImageItems,
+                $job->id,
+                $job->user_id
+            );
+        } else {
+            $mergedPrompt = $promptMerge->merge(
+                $template->original_prompt,
+                (string) $job->user_prompt,
+                $job->id,
+                $job->user_id
+            );
+        }
         $job->update(['merged_prompt' => $mergedPrompt]);
 
-        $userImageItems = $this->resolveImagePaths($job);
         $templateRefItems = $this->resolveTemplateReferencePaths($template);
 
         // 0 фото юзера → используем референсы шаблона (начальный кадр + фото продукта).
