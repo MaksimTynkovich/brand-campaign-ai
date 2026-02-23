@@ -75,33 +75,46 @@ class GenerationController extends Controller
             ], 402);
         }
 
-        $template = Template::find($request->validated('template_id'));
-        $userPrompt = (string) $request->input('prompt', '');
+        try {
+            $template = Template::find($request->validated('template_id'));
+            $userPrompt = (string) $request->input('prompt', '');
 
-        $user->spendCredits(1);
+            $user->spendCredits(1);
 
-        $job = GenerationJob::create([
-            'user_id' => $request->user()?->id,
-            'template_id' => $template->id,
-            'status' => GenerationJob::STATUS_PENDING,
-            'user_prompt' => $userPrompt,
-            'input' => null,
-        ]);
+            $job = GenerationJob::create([
+                'user_id' => $request->user()?->id,
+                'template_id' => $template->id,
+                'status' => GenerationJob::STATUS_PENDING,
+                'user_prompt' => $userPrompt,
+                'input' => null,
+            ]);
 
-        if ($request->hasFile('images')) {
-            $dir = 'generation-input/' . $job->id;
-            $storedPaths = [];
-            foreach ($request->file('images') as $file) {
-                $path = $file->store($dir, 'local');
-                $storedPaths[] = $path;
+            if ($request->hasFile('images')) {
+                $dir = 'generation-input/' . $job->id;
+                $storedPaths = [];
+                foreach ($request->file('images') as $file) {
+                    $path = $file->store($dir, 'local');
+                    $storedPaths[] = $path;
+                }
+                $job->update(['input' => ['stored_paths' => $storedPaths]]);
             }
-            $job->update(['input' => ['stored_paths' => $storedPaths]]);
+
+            ProcessGenerationJob::dispatch($job);
+            Log::info('[Generation] Задача поставлена в очередь', ['job_id' => $job->id]);
+
+            return response()->json(['data' => ['job_id' => $job->id]], 201);
+        } catch (\Throwable $e) {
+            Log::error('[Generation] start failed', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+            $message = config('app.debug') ? $e->getMessage() : 'Ошибка при запуске генерации. Проверьте логи на сервере.';
+            return response()->json([
+                'message' => $message,
+                'error' => ['message' => $message, 'code' => 500, 'details' => []],
+            ], 500);
         }
-
-        ProcessGenerationJob::dispatch($job);
-        Log::info('[Generation] Задача поставлена в очередь', ['job_id' => $job->id]);
-
-        return response()->json(['data' => ['job_id' => $job->id]], 201);
     }
 
     public function status(Request $request, int $jobId): JsonResponse

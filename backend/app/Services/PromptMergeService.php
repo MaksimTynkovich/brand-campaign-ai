@@ -39,9 +39,12 @@ class PromptMergeService
 
     private function callOpenAi(string $templatePrompt, string $userPrompt): ?string
     {
-        $response = Http::withToken(config('services.openai.api_key'))
-            ->timeout(30)
-            ->post(self::OPENAI_URL, [
+        $proxy = config('services.openai.proxy');
+        $client = Http::withToken(config('services.openai.api_key'))->timeout(30);
+        if (!empty($proxy)) {
+            $client = $client->withOptions(['proxy' => $proxy]);
+        }
+        $response = $client->post(self::OPENAI_URL, [
                 'model' => 'gpt-4o-mini',
                 'messages' => [
                     [
@@ -55,7 +58,7 @@ class PromptMergeService
                         'content' => "Шаблонный промпт:\n\n" . $templatePrompt . "\n\nПожелания пользователя:\n\n" . $userPrompt,
                     ],
                 ],
-                'max_tokens' => 2000,
+                'max_tokens' => 5000,
             ]);
 
         if (!$response->successful()) {

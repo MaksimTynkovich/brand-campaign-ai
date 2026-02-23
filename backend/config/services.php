@@ -42,6 +42,7 @@ return [
 
     'openai' => [
         'api_key' => env('OPENAI_API_KEY'),
+        'proxy' => env('OPENAI_PROXY'), // например http://proxy.example.com:8080 или http://user:pass@host:8080
     ],
 
     'kie_veo' => [
