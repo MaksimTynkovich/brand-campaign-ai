@@ -116,7 +116,7 @@ class VeoService
                 return null;
             }
 
-            $path = 'generation-output/' . uniqid('veo_', true) . '.mp4';
+            $path = 'generation-output/' . uniqid('video_', true) . '.mp4';
             Storage::disk('public')->put($path, $response->body());
             Log::info('[VeoService] Видео сохранено', ['path' => $path]);
 

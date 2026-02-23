@@ -831,7 +831,7 @@ function AppContent() {
             <span className="hidden sm:inline text-gray-600">·</span>
             <Link to="/privacy" className="hover:text-primary transition-colors">Политика конфиденциальности</Link>
             <span className="hidden sm:inline text-gray-600">·</span>
-            <a href="mailto:hello@veydo.com" className="hover:text-primary transition-colors">hello@veydo.com</a>
+            <a href="mailto:hello@veydo.cc" className="hover:text-primary transition-colors">hello@veydo.cc</a>
             <span className="hidden sm:inline text-gray-600">·</span>
             <Link to="/terms" className="hover:text-primary transition-colors">Условия использования</Link>
           </div>

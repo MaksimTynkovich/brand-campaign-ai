@@ -15,7 +15,7 @@ const content = {
         </p>
         <p>
           По вопросам персональных данных обращайтесь:{' '}
-          <a href="mailto:hello@veydo.com" className="text-primary hover:underline">hello@veydo.com</a>.
+          <a href="mailto:hello@veydo.cc" className="text-primary hover:underline">hello@veydo.cc</a>.
         </p>
       </>
     ),

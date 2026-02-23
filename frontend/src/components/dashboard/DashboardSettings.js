@@ -142,7 +142,7 @@ function DashboardSettings() {
           </p>
           <div className="flex flex-wrap gap-3">
             <a
-              href="mailto:hello@veydo.com?subject=Вопрос по аккаунту Veydo"
+              href="mailto:hello@veydo.cc?subject=Вопрос по аккаунту Veydo"
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-gray-200 text-gray-700 font-medium hover:bg-gray-50 hover:border-gray-300 transition-colors"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
