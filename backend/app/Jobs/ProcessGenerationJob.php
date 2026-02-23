@@ -47,7 +47,12 @@ class ProcessGenerationJob implements ShouldQueue
             return;
         }
 
-        $mergedPrompt = $promptMerge->merge($template->original_prompt, (string) $job->user_prompt);
+        $mergedPrompt = $promptMerge->merge(
+            $template->original_prompt,
+            (string) $job->user_prompt,
+            $job->id,
+            $job->user_id
+        );
         $job->update(['merged_prompt' => $mergedPrompt]);
 
         $userImageItems = $this->resolveImagePaths($job);
