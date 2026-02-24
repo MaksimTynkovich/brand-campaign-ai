@@ -35,7 +35,6 @@ function DashboardHome() {
     }).finally(() => setTemplatesLoading(false));
   }, []);
 
-
   const activeTemplate = templates.find((t) => t.id === activeTemplateId);
 
   // При открытии модалки с примером видео — звук по умолчанию вкл, автозапуск
@@ -242,6 +241,18 @@ function DashboardHome() {
                     <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-gray-900 to-gray-700" />
                   )}
                   <div className="absolute inset-0 opacity-30 group-hover:opacity-40 transition-opacity bg-gradient-to-t from-black/70 to-transparent pointer-events-none" />
+                  <div className="absolute inset-0 flex items-end justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveTemplateId(t.id);
+                      }}
+                      className="mb-3 px-4 py-2 rounded-xl bg-white/95 text-gray-900 text-xs sm:text-sm font-semibold shadow-lg hover:bg-white"
+                    >
+                      Использовать
+                    </button>
+                  </div>
                 </div>
               </div>
             )) : (
