@@ -416,6 +416,7 @@ function DashboardHome() {
                       />
                     </div>
                     <p className="text-xs text-gray-400 mt-4">ИИ обрабатывает кадры и собирает ролик</p>
+                    <p className="text-xs text-gray-400 mt-2">Если результат не устроит — можно запустить генерацию снова</p>
                   </div>
                 ) : genError ? (
                   <>
@@ -428,7 +429,10 @@ function DashboardHome() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <h4 className="font-semibold text-red-900 mb-1">Не удалось создать видео</h4>
-                          <p className="text-sm text-red-700 mb-4">{genError}</p>
+                          <p className="text-sm text-red-700 mb-2">{genError}</p>
+                          <p className="text-xs text-red-600/90 mb-4">
+                            Так бывает нередко — попробуйте ещё раз, часто срабатывает со второй попытки.
+                          </p>
                           <div className="flex flex-wrap gap-3">
                             <button
                               type="button"
