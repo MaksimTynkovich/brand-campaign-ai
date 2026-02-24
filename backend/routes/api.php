@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\TemplateCategoryController;
 use App\Http\Controllers\Api\BillingController;
 use App\Http\Controllers\Api\AdminUserController;
 use App\Http\Controllers\Api\CarouselController;
+use App\Http\Controllers\Api\PromptSettingsController;
 
 // Auth routes (public)
 Route::post('/auth/register', [AuthController::class, 'register']);
@@ -52,6 +53,9 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::put('/admin/users/{id}', [AdminUserController::class, 'update']);
     Route::get('/admin/carousel', [CarouselController::class, 'adminIndex']);
     Route::put('/admin/carousel', [CarouselController::class, 'adminUpdate']);
+
+    Route::get('/admin/prompt-settings', [PromptSettingsController::class, 'show']);
+    Route::put('/admin/prompt-settings', [PromptSettingsController::class, 'update']);
 
     Route::get('/template-categories', [TemplateCategoryController::class, 'index']);
     Route::post('/template-categories', [TemplateCategoryController::class, 'store']);

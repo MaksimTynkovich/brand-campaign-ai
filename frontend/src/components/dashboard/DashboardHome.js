@@ -416,7 +416,6 @@ function DashboardHome() {
                       />
                     </div>
                     <p className="text-xs text-gray-400 mt-4">ИИ обрабатывает кадры и собирает ролик</p>
-                    <p className="text-xs text-gray-400 mt-2">Если результат не устроит — можно запустить генерацию снова</p>
                   </div>
                 ) : genError ? (
                   <>

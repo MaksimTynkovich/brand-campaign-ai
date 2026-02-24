@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\OpenaiPromptLog;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -15,6 +16,8 @@ use Illuminate\Support\Facades\Storage;
 class PromptMergeService
 {
     private const OPENAI_URL = 'https://api.openai.com/v1/chat/completions';
+
+    private const VISION_PROMPT_KEY = 'prompt_vision_system_prompt';
 
     private const SYSTEM_PROMPT_VISION = <<<'TEXT'
 You are a video prompt engineer and product interaction expert for an AI video generation model (VEO).
@@ -109,6 +112,19 @@ OUTPUT RULES:
   - Do NOT output JSON or any extra commentary.
   - Return a single, self-contained prompt ready to be used as `prompt` for the video generation API.
 TEXT;
+
+    /**
+     * Текущий системный промпт для vision-мержа (из настроек или дефолтный).
+     */
+    public function currentVisionPrompt(): string
+    {
+        $row = DB::table('settings')->where('key', self::VISION_PROMPT_KEY)->first();
+        if ($row && is_string($row->value) && $row->value !== '') {
+            return (string) $row->value;
+        }
+
+        return self::SYSTEM_PROMPT_VISION;
+    }
 
     /**
      * @param  int|null  $generationJobId  для связи с задачей генерации и статистики
@@ -261,9 +277,9 @@ TEXT;
             $client = $client->withOptions(['proxy' => $proxy]);
         }
         $response = $client->post(self::OPENAI_URL, [
-            'model' => 'gpt-4o-mini',
+            'model' => 'gpt-4.1',
             'messages' => [
-                ['role' => 'system', 'content' => self::SYSTEM_PROMPT_VISION],
+                ['role' => 'system', 'content' => $this->currentVisionPrompt()],
                 ['role' => 'user', 'content' => $userContent],
             ],
             'max_tokens' => 5000,
@@ -321,7 +337,7 @@ TEXT;
             $client = $client->withOptions(['proxy' => $proxy]);
         }
         $response = $client->post(self::OPENAI_URL, [
-            'model' => 'gpt-4o-mini',
+            'model' => 'gpt-4.1',
             'messages' => [
                 [
                     'role' => 'system',

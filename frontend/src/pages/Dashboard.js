@@ -11,6 +11,7 @@ import AdminTemplateCategories from '../components/dashboard/AdminTemplateCatego
 import AdminUsers from '../components/dashboard/AdminUsers';
 import AdminCarousel from '../components/dashboard/AdminCarousel';
 import DashboardSettings from '../components/dashboard/DashboardSettings';
+import AdminPromptSettings from '../components/dashboard/AdminPromptSettings';
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -45,6 +46,7 @@ function Dashboard() {
             <Route path="templates" element={<AdminTemplates />} />
             <Route path="template-categories" element={<AdminTemplateCategories />} />
             <Route path="carousel" element={<AdminCarousel />} />
+            <Route path="prompt-settings" element={<AdminPromptSettings />} />
           </Routes>
         </main>
       </div>
