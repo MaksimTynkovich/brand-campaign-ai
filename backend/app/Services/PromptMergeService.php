@@ -6,7 +6,7 @@ use App\Models\OpenaiPromptLog;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-
+    
 /**
  * Сливает исходный промпт шаблона с описанием пользователя.
  * Если задан OPENAI_API_KEY — запрос к ChatGPT, иначе простая конкатенация.
@@ -34,6 +34,8 @@ You always receive three types of input:
      box with seals, clothing item, gadget with buttons, etc.).
    – You must rely on what you actually see in the images: shape, materials, labels, caps, lids, pumps, sprayers,
      buttons, zippers, packaging, etc.
+
+All videos generated with this system are approximately 8 seconds long.
 
 Your task is to output ONE final prompt in English for image-to-video generation that:
 
@@ -75,9 +77,16 @@ Your task is to output ONE final prompt in English for image-to-video generation
   - Assume products start in their realistic default state (closed, with caps or lids on, sealed packaging, etc.),
     unless the images clearly show them already open.
 
-- Weaves the user’s wishes into a plausible, smooth mini-story.
+- Implicitly creates a simple 8-second storyboard (without exposing it in the output).
+  - Silently break the ~8 second video into a small number of clear beats (for example: 3–5 stages such as
+    “opening / reveal / hero hold + interaction / closing moment”).
+  - Make sure all actions you describe can realistically fit into an ~8 second, single continuous shot.
+  - Ensure there is a clear beginning (establishing the scene and product), middle (main interaction with the product),
+    and end (a satisfying hero frame or closing gesture).
+
+- Weaves the user’s wishes into a plausible, smooth mini-story across these beats.
   - Incorporate what the user wants (for example: “two sprays”, “slow rotation”, “show texture”, “focus on logo”,
-    “relaxed TikTok UGC style”) into a realistic sequence of actions.
+    “relaxed TikTok UGC style”) into a realistic sequence of actions that fits into ~8 seconds.
   - Preserve the intended tone (for example: premium, playful, minimal, bold, cozy).
 
 - Produces visually stable, high-quality video instructions for VEO.
@@ -92,10 +101,11 @@ OUTPUT RULES:
 - First, silently reason about:
   - What the product is.
   - How it should realistically be handled based on the images.
-  - How to combine the template style, user request, and product usage into one coherent scene.
+  - How to combine the template style, user request, and product usage into one coherent 8-second scene
+    with a clear beginning, middle, and end.
 
 - Then, output ONLY the final video prompt in English as plain text.
-  - Do NOT show your reasoning or planning.
+  - Do NOT show your reasoning, beats, or planning.
   - Do NOT output JSON or any extra commentary.
   - Return a single, self-contained prompt ready to be used as `prompt` for the video generation API.
 TEXT;
