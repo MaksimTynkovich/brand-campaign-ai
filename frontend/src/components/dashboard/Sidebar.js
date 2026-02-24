@@ -112,6 +112,11 @@ function Sidebar({ isOpen, onToggle }) {
             icon: CarouselIcon,
             path: '/dashboard/carousel',
           },
+          {
+            title: 'AI промпты',
+            icon: SettingsIcon,
+            path: '/dashboard/prompt-settings',
+          },
         ]
       : []),
   ];

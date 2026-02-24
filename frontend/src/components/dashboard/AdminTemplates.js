@@ -418,16 +418,6 @@ function AdminTemplates() {
                       />
                       <p className="text-xs text-gray-500 mt-1">Обязательное поле. Сливается с текстом пользователя при генерации.</p>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Диалог по умолчанию</label>
-                      <textarea
-                        value={form.default_voiceover}
-                        onChange={(e) => setForm((f) => ({ ...f, default_voiceover: e.target.value }))}
-                        rows={2}
-                        className="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-gray-900 focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                        placeholder="Опционально"
-                      />
-                    </div>
                   </div>
                 </section>
               </div>

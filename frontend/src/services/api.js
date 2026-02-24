@@ -320,6 +320,18 @@ class ApiService {
     });
   }
 
+  // Admin: AI prompt settings
+  async getAdminPromptSettings() {
+    return this.request('/admin/prompt-settings');
+  }
+
+  async updateAdminPromptSettings(visionPrompt) {
+    return this.request('/admin/prompt-settings', {
+      method: 'PUT',
+      body: JSON.stringify({ vision_system_prompt: visionPrompt }),
+    });
+  }
+
   // Auth
   async login(email, password) {
     const response = await this.request('/auth/login', {

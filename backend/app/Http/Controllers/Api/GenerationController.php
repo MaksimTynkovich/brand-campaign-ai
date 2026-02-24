@@ -36,6 +36,7 @@ class GenerationController extends Controller
             return [
                 'id' => $job->id,
                 'status' => $job->status,
+                'user_prompt' => $job->user_prompt,
                 'video_url' => $job->status === GenerationJob::STATUS_COMPLETED && $job->video_path
                     ? $job->video_path
                     : null,
