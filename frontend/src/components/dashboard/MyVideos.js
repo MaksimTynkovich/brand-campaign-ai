@@ -58,6 +58,7 @@ function MyVideos() {
   const [selectedItem, setSelectedItem] = useState(null);
   const [modalPromptText, setModalPromptText] = useState('');
   const [modalImages, setModalImages] = useState([null, null]);
+  const [modalImagePreviews, setModalImagePreviews] = useState([null, null]);
   const [modalSourceJobId, setModalSourceJobId] = useState(null);
   const [modalSourceImages, setModalSourceImages] = useState([]);
   const [modalGenerating, setModalGenerating] = useState(false);
@@ -143,10 +144,20 @@ function MyVideos() {
 
   const isInProgress = (status) => status === 'pending' || status === 'processing';
 
+  const clearModalUploads = () => {
+    setModalImages([null, null]);
+    setModalImagePreviews((prev) => {
+      prev.forEach((url) => {
+        if (url) URL.revokeObjectURL(url);
+      });
+      return [null, null];
+    });
+  };
+
   const openDetails = (item) => {
+    clearModalUploads();
     setSelectedItem(item);
     setModalPromptText(item.user_prompt || '');
-    setModalImages([null, null]);
     setModalSourceJobId(item.id);
     setModalSourceImages(Array.isArray(item.input_images) ? item.input_images.slice(0, 2) : []);
     setModalGenerating(false);
@@ -159,7 +170,7 @@ function MyVideos() {
     if (modalGenerating) return;
     setSelectedItem(null);
     setModalPromptText('');
-    setModalImages([null, null]);
+    clearModalUploads();
     setModalSourceJobId(null);
     setModalSourceImages([]);
     setModalGenerating(false);
@@ -169,16 +180,48 @@ function MyVideos() {
   };
 
   const setModalImageAt = (index, file) => {
-    if (file) {
-      setModalSourceJobId(null);
-      setModalSourceImages([]);
-    }
     setModalImages((prev) => {
       const next = [...prev];
       next[index] = file || null;
       return next;
     });
+    setModalImagePreviews((prev) => {
+      const next = [...prev];
+      if (next[index]) URL.revokeObjectURL(next[index]);
+      next[index] = file ? URL.createObjectURL(file) : null;
+      return next;
+    });
   };
+
+  const buildImageFilesForRepeat = async () => {
+    const slots = [0, 1];
+    const files = await Promise.all(
+      slots.map(async (slot) => {
+        if (modalImages[slot]) return modalImages[slot];
+        const sourceUrl = modalSourceImages[slot];
+        if (!sourceUrl) return null;
+        try {
+          const res = await fetch(sourceUrl);
+          if (!res.ok) return null;
+          const blob = await res.blob();
+          const mime = blob.type || 'image/jpeg';
+          const ext = mime.includes('png') ? 'png' : mime.includes('webp') ? 'webp' : 'jpg';
+          return new File([blob], `source_${selectedItem?.id ?? 'img'}_${slot + 1}.${ext}`, { type: mime });
+        } catch {
+          return null;
+        }
+      })
+    );
+    return files.filter(Boolean);
+  };
+
+  useEffect(() => {
+    return () => {
+      modalImagePreviews.forEach((url) => {
+        if (url) URL.revokeObjectURL(url);
+      });
+    };
+  }, [modalImagePreviews]);
 
   const handleRepeatTemplate = async () => {
     if (!selectedItem?.template?.id) return;
@@ -186,7 +229,7 @@ function MyVideos() {
     setModalGenerating(true);
     setModalResultVideoUrl(null);
     setModalError(null);
-    const imageFiles = modalImages.filter(Boolean);
+    const imageFiles = await buildImageFilesForRepeat();
 
     try {
       const res = await api.startGenerationFromTemplate(
@@ -576,37 +619,44 @@ function MyVideos() {
                       <p className="text-xs text-gray-500 mb-2">
                         Если не загружаете — используются фото из текущей генерации или референсы шаблона.
                       </p>
-                      {modalSourceJobId && modalSourceImages.length > 0 && (
-                        <div className="mb-3 rounded-xl border border-primary/20 bg-primary/5 p-2.5">
-                          <p className="text-[11px] text-primary mb-2">
-                            Сейчас выбраны фото из текущей генерации.
-                          </p>
-                          <div className="flex gap-2">
-                            {modalSourceImages.map((img, idx) => (
-                              <img
-                                key={`${img}-${idx}`}
-                                src={img}
-                                alt={`Фото продукта ${idx + 1}`}
-                                className="w-12 h-12 rounded-lg object-cover border border-primary/20"
-                              />
-                            ))}
-                          </div>
-                        </div>
-                      )}
                       <div className="flex gap-2 max-w-[200px]">
                         {[0, 1].map((slot) => (
-                          <label key={slot} className="cursor-pointer flex-1 min-w-0">
+                          <label key={slot} className="cursor-pointer flex-1 min-w-0 group">
                             <input
                               type="file"
                               accept="image/*"
                               className="hidden"
                               onChange={(e) => setModalImageAt(slot, e.target.files?.[0] || null)}
                             />
-                            <div className="aspect-square w-full max-w-[92px] rounded-lg border border-dashed border-gray-300 bg-gray-50 flex flex-col items-center justify-center text-[11px] text-gray-500 hover:border-primary hover:text-primary transition-colors overflow-hidden">
+                            <div className="relative aspect-square w-full max-w-[92px] rounded-lg border border-dashed border-gray-300 bg-gray-50 flex flex-col items-center justify-center text-[11px] text-gray-500 hover:border-primary hover:text-primary transition-colors overflow-hidden">
                               {modalImages[slot] ? (
-                                <span className="px-2 truncate w-full text-center text-gray-700">
-                                  {modalImages[slot].name}
-                                </span>
+                                <>
+                                  {modalImagePreviews[slot] ? (
+                                    <img
+                                      src={modalImagePreviews[slot]}
+                                      alt={`Новое фото ${slot + 1}`}
+                                      className="absolute inset-0 w-full h-full object-cover"
+                                    />
+                                  ) : (
+                                    <span className="px-2 truncate w-full text-center text-gray-700">
+                                      {modalImages[slot].name}
+                                    </span>
+                                  )}
+                                  <div className="absolute inset-0 bg-black/55 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center px-1 text-[10px] font-medium text-center">
+                                    Заменить фото
+                                  </div>
+                                </>
+                              ) : modalSourceImages[slot] ? (
+                                <>
+                                  <img
+                                    src={modalSourceImages[slot]}
+                                    alt={`Фото продукта ${slot + 1}`}
+                                    className="absolute inset-0 w-full h-full object-cover"
+                                  />
+                                  <div className="absolute inset-0 bg-black/55 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center px-1 text-[10px] font-medium text-center">
+                                    Заменить фото
+                                  </div>
+                                </>
                               ) : (
                                 <>
                                   <span className="text-lg mb-1">+</span>
