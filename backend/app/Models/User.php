@@ -76,7 +76,7 @@ class User extends Authenticatable
     public function isPaidPlan(): bool
     {
         $plan = strtolower((string) ($this->plan ?? 'trial'));
-        $paidPlans = ['professional', 'business', 'start'];
+        $paidPlans = ['start', 'professional', 'business'];
 
         return in_array($plan, $paidPlans, true);
     }

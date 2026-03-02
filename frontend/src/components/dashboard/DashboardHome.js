@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import api, { getStorageUrl } from '../../services/api';
@@ -7,7 +7,6 @@ const POLL_INTERVAL_MS = 2000;
 const MAX_POLL_ATTEMPTS = 120;
 
 function DashboardHome() {
-  const user = api.getCurrentUser();
   const location = useLocation();
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
@@ -29,6 +28,18 @@ function DashboardHome() {
   const [photoTipAnchor, setPhotoTipAnchor] = useState({ left: 0, top: 0 });
   const [reuseSourceJobId, setReuseSourceJobId] = useState(null);
   const [reuseSourceImages, setReuseSourceImages] = useState([]);
+  const [billingPlan, setBillingPlan] = useState(api.getCurrentUser()?.plan ?? 'trial');
+  const paidPlans = ['professional', 'business', 'pro', 'enterprise'];
+  const isPaidUser = paidPlans.includes(String(billingPlan ?? 'trial').toLowerCase());
+
+  const refreshBillingPlan = useCallback(() => {
+    api
+      .getBillingFromApi()
+      .then(({ plan }) => {
+        if (plan) setBillingPlan(plan);
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     setTemplatesLoading(true);
@@ -38,6 +49,17 @@ function DashboardHome() {
       setCategories(Array.isArray(cats) ? cats : []);
     }).finally(() => setTemplatesLoading(false));
   }, []);
+
+  useEffect(() => {
+    refreshBillingPlan();
+    const onFocus = () => refreshBillingPlan();
+    window.addEventListener('focus', onFocus);
+    const intervalId = window.setInterval(refreshBillingPlan, 60000);
+    return () => {
+      window.removeEventListener('focus', onFocus);
+      window.clearInterval(intervalId);
+    };
+  }, [refreshBillingPlan]);
 
   useEffect(() => {
     if (templatesLoading) return;
@@ -447,6 +469,19 @@ function DashboardHome() {
                         </svg>
                       </Link>
                     </div>
+                    {!isPaidUser && (
+                      <div className="flex mt-2 justify-start">
+                        <Link
+                          to="/dashboard/billing"
+                          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-amber-300/70 bg-amber-50 text-amber-800 text-xs font-semibold hover:bg-amber-100 hover:border-amber-400 transition-colors"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 10H5L3 8z" />
+                          </svg>
+                          Убрать водяной знак
+                        </Link>
+                      </div>
+                    )}
                   </div>
                 ) : generating ? (
                   <div className="flex-1 flex flex-col items-center justify-center py-8 sm:py-12">

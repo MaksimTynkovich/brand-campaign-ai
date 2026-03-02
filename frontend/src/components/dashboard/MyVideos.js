@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import api, { getStorageUrl, API_BASE_URL } from '../../services/api';
 
@@ -47,6 +47,9 @@ function StatusBadge({ status }) {
 }
 
 function MyVideos() {
+  const [billingPlan, setBillingPlan] = useState(api.getCurrentUser()?.plan ?? 'trial');
+  const paidPlans = ['professional', 'business', 'pro', 'enterprise'];
+  const isPaidUser = paidPlans.includes(String(billingPlan ?? 'trial').toLowerCase());
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -63,6 +66,15 @@ function MyVideos() {
   const [modalSoundOn, setModalSoundOn] = useState(true);
   const cardVideoRefs = useRef({});
   const modalVideoRef = useRef(null);
+
+  const refreshBillingPlan = useCallback(() => {
+    api
+      .getBillingFromApi()
+      .then(({ plan }) => {
+        if (plan) setBillingPlan(plan);
+      })
+      .catch(() => {});
+  }, []);
 
   const handleDownload = async (item) => {
     if (!item?.video_url) return;
@@ -96,6 +108,17 @@ function MyVideos() {
       .catch((err) => setError(err.message || 'Не удалось загрузить список'))
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    refreshBillingPlan();
+    const onFocus = () => refreshBillingPlan();
+    window.addEventListener('focus', onFocus);
+    const intervalId = window.setInterval(refreshBillingPlan, 60000);
+    return () => {
+      window.removeEventListener('focus', onFocus);
+      window.clearInterval(intervalId);
+    };
+  }, [refreshBillingPlan]);
 
   useEffect(() => {
     if (!selectedItem || modalGenerating || !modalVideoRef.current) return;
@@ -535,6 +558,19 @@ function MyVideos() {
                   </div>
                 ) : (
                   <>
+                    {!isPaidUser && (
+                      <div className="flex justify-start">
+                        <Link
+                          to="/dashboard/billing"
+                          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-amber-300/70 bg-amber-50 text-amber-800 text-xs font-semibold hover:bg-amber-100 hover:border-amber-400 transition-colors"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 10H5L3 8z" />
+                          </svg>
+                          Убрать водяной знак
+                        </Link>
+                      </div>
+                    )}
                     <div>
                       <h4 className="text-sm font-medium text-gray-900 mb-2">Фото продукта</h4>
                       <p className="text-xs text-gray-500 mb-2">
