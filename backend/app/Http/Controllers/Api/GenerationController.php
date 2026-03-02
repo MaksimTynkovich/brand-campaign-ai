@@ -11,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -27,7 +28,7 @@ class GenerationController extends Controller
         }
 
         $jobs = GenerationJob::where('user_id', $userId)
-            ->with('template:id,category,description,preview_url')
+            ->with('template:id,category,description,preview_url,default_voiceover')
             ->orderByDesc('created_at')
             ->get();
 
@@ -47,7 +48,17 @@ class GenerationController extends Controller
                     'category' => $template->category,
                     'description' => $template->description,
                     'preview_url' => $template->preview_url,
+                    'default_voiceover' => $template->default_voiceover,
                 ] : null,
+                'input_images' => collect($job->input['stored_paths'] ?? [])
+                    ->filter(fn ($path) => is_string($path) && $path !== '')
+                    ->values()
+                    ->map(fn ($path) => URL::temporarySignedRoute(
+                        'generation.serve-image',
+                        now()->addDays(2),
+                        ['path' => $path]
+                    ))
+                    ->all(),
             ];
         });
 
@@ -79,6 +90,7 @@ class GenerationController extends Controller
         try {
             $template = Template::find($request->validated('template_id'));
             $userPrompt = (string) $request->input('prompt', '');
+            $sourceJobId = $request->input('source_job_id');
 
             $user->spendCredits(1);
 
@@ -90,6 +102,17 @@ class GenerationController extends Controller
                 'input' => null,
             ]);
 
+            $copiedInput = null;
+            if ($sourceJobId && !$request->hasFile('images')) {
+                $sourceJob = GenerationJob::where('id', (int) $sourceJobId)
+                    ->where('user_id', $request->user()?->id)
+                    ->first();
+                $storedPaths = $sourceJob?->input['stored_paths'] ?? [];
+                if (is_array($storedPaths) && count($storedPaths) > 0) {
+                    $copiedInput = ['stored_paths' => array_values($storedPaths)];
+                }
+            }
+
             if ($request->hasFile('images')) {
                 $dir = 'generation-input/' . $job->id;
                 $storedPaths = [];
@@ -98,6 +121,8 @@ class GenerationController extends Controller
                     $storedPaths[] = $path;
                 }
                 $job->update(['input' => ['stored_paths' => $storedPaths]]);
+            } elseif ($copiedInput !== null) {
+                $job->update(['input' => $copiedInput]);
             }
 
             ProcessGenerationJob::dispatch($job);

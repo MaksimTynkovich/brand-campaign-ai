@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import api, { getStorageUrl } from '../../services/api';
 
 const POLL_INTERVAL_MS = 2000;
@@ -8,6 +8,8 @@ const MAX_POLL_ATTEMPTS = 120;
 
 function DashboardHome() {
   const user = api.getCurrentUser();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [templates, setTemplates] = useState([]);
   const [templatesLoading, setTemplatesLoading] = useState(true);
@@ -25,6 +27,8 @@ function DashboardHome() {
   const cardVideoRefs = useRef({});
   const [photoTipOpen, setPhotoTipOpen] = useState(false);
   const [photoTipAnchor, setPhotoTipAnchor] = useState({ left: 0, top: 0 });
+  const [reuseSourceJobId, setReuseSourceJobId] = useState(null);
+  const [reuseSourceImages, setReuseSourceImages] = useState([]);
 
   useEffect(() => {
     setTemplatesLoading(true);
@@ -34,6 +38,23 @@ function DashboardHome() {
       setCategories(Array.isArray(cats) ? cats : []);
     }).finally(() => setTemplatesLoading(false));
   }, []);
+
+  useEffect(() => {
+    if (templatesLoading) return;
+    const payload = location.state?.reuseGeneration;
+    if (!payload || !payload.templateId) return;
+
+    setActiveTemplateId(payload.templateId);
+    setPromptText(typeof payload.prompt === 'string' ? payload.prompt : '');
+    setReuseSourceJobId(payload.sourceJobId ?? null);
+    setReuseSourceImages(Array.isArray(payload.inputImages) ? payload.inputImages.slice(0, 2) : []);
+    setResultVideoUrl(null);
+    setGenError(null);
+    setJobId(null);
+    setImages([null, null]);
+
+    navigate(location.pathname, { replace: true, state: null });
+  }, [templatesLoading, location.state, location.pathname, navigate]);
 
   const activeTemplate = templates.find((t) => t.id === activeTemplateId);
 
@@ -48,6 +69,10 @@ function DashboardHome() {
   }, [activeTemplate?.example_video_url]);
 
   const setImageAt = (index, file) => {
+    if (file) {
+      setReuseSourceJobId(null);
+      setReuseSourceImages([]);
+    }
     setImages((prev) => {
       const next = [...prev];
       next[index] = file || null;
@@ -62,7 +87,12 @@ function DashboardHome() {
     setGenerating(true);
     const imageFiles = images.filter(Boolean);
     try {
-      const res = await api.startGenerationFromTemplate(activeTemplateId, promptText.trim(), imageFiles);
+      const res = await api.startGenerationFromTemplate(
+        activeTemplateId,
+        promptText.trim(),
+        imageFiles,
+        imageFiles.length === 0 && reuseSourceJobId ? { sourceJobId: reuseSourceJobId } : {}
+      );
       const id = res.data?.job_id ?? res.job_id;
       if (!id) throw new Error('Нет job_id в ответе');
       setJobId(id);
@@ -102,6 +132,8 @@ function DashboardHome() {
       setGenError(null);
       setJobId(null);
       setImages([null, null]);
+      setReuseSourceJobId(null);
+      setReuseSourceImages([]);
     }
   };
 
@@ -510,6 +542,23 @@ function DashboardHome() {
                           <p className="text-xs text-gray-500 mb-2">
                             Если не загружаете — используются референсы шаблона.
                           </p>
+                          {reuseSourceJobId && reuseSourceImages.length > 0 && (
+                            <div className="mb-3 rounded-xl border border-primary/20 bg-primary/5 p-2.5">
+                              <p className="text-[11px] text-primary mb-2">
+                                Будут использованы фото из прошлой генерации.
+                              </p>
+                              <div className="flex gap-2">
+                                {reuseSourceImages.map((img, idx) => (
+                                  <img
+                                    key={`${img}-${idx}`}
+                                    src={img}
+                                    alt={`Фото продукта ${idx + 1}`}
+                                    className="w-12 h-12 rounded-lg object-cover border border-primary/20"
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                          )}
                           <div className="flex gap-2 max-w-[200px]">
                             {[0, 1].map((slot) => (
                               <label key={slot} className="cursor-pointer flex-1 min-w-0">
@@ -589,6 +638,23 @@ function DashboardHome() {
                       <p className="text-xs text-gray-500 mb-2">
                         Если не загружаете — используются референсы шаблона.
                       </p>
+                      {reuseSourceJobId && reuseSourceImages.length > 0 && (
+                        <div className="mb-3 rounded-xl border border-primary/20 bg-primary/5 p-2.5">
+                          <p className="text-[11px] text-primary mb-2">
+                            Будут использованы фото из прошлой генерации.
+                          </p>
+                          <div className="flex gap-2">
+                            {reuseSourceImages.map((img, idx) => (
+                              <img
+                                key={`${img}-${idx}`}
+                                src={img}
+                                alt={`Фото продукта ${idx + 1}`}
+                                className="w-12 h-12 rounded-lg object-cover border border-primary/20"
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      )}
                       <div className="flex gap-2 max-w-[200px]">
                         {[0, 1].map((slot) => (
                           <label key={slot} className="cursor-pointer flex-1 min-w-0">

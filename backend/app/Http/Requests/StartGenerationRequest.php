@@ -16,6 +16,7 @@ class StartGenerationRequest extends FormRequest
         return [
             'template_id' => ['required', 'integer', 'exists:templates,id'],
             'prompt' => ['nullable', 'string', 'max:5000'],
+            'source_job_id' => ['nullable', 'integer'],
             'images' => ['nullable', 'array', 'max:2'],
             'images.*' => ['image', 'max:10240'],
         ];

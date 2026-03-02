@@ -253,12 +253,13 @@ class ApiService {
   }
 
   // Generation
-  async startGenerationFromTemplate(templateId, userPrompt, imageFiles = []) {
+  async startGenerationFromTemplate(templateId, userPrompt, imageFiles = [], options = {}) {
     const token = localStorage.getItem('auth_token');
     const url = `${API_BASE_URL}/generation/start`;
     const form = new FormData();
     form.append('template_id', templateId);
     if (userPrompt) form.append('prompt', userPrompt);
+    if (options.sourceJobId) form.append('source_job_id', String(options.sourceJobId));
     imageFiles.forEach((file) => form.append('images[]', file));
 
     const response = await fetch(url, {
