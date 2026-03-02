@@ -72,4 +72,17 @@ class User extends Authenticatable
 
         return true;
     }
+
+    public function isPaidPlan(): bool
+    {
+        $plan = strtolower((string) ($this->plan ?? 'trial'));
+        $paidPlans = ['start', 'professional', 'business'];
+
+        return in_array($plan, $paidPlans, true);
+    }
+
+    public function shouldUseVideoWatermark(): bool
+    {
+        return !$this->isPaidPlan();
+    }
 }

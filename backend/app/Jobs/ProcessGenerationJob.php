@@ -79,8 +79,10 @@ class ProcessGenerationJob implements ShouldQueue
             $allImageItems = array_merge($initialFrame, $userImageItems);
         }
 
+        $user = $job->user()->first();
+        $withWatermark = $user ? $user->shouldUseVideoWatermark() : true;
         Log::info('[Generation] Запрос к Veo (Kie.ai)', ['job_id' => $job->id, 'prompt_length' => strlen($mergedPrompt), 'images_count' => count($allImageItems)]);
-        $videoPath = $veo->generate($mergedPrompt, $allImageItems);
+        $videoPath = $veo->generate($mergedPrompt, $allImageItems, $withWatermark);
 
         if ($videoPath !== null) {
             $job->update([
