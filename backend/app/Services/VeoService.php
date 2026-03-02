@@ -193,8 +193,9 @@ class VeoService
     {
         $safeText = str_replace(['\\', ':', "'"], ['\\\\', '\:', "\\'"], $text);
         $parts = [];
-        $xPositions = [0.04, 0.28, 0.52, 0.76];
-        $yPositions = [0.08, 0.24, 0.40, 0.56, 0.72, 0.88];
+        // Редкая сетка, чтобы водяные знаки не накладывались друг на друга.
+        $xPositions = [0.08, 0.58];
+        $yPositions = [0.12, 0.38, 0.64, 0.86];
 
         foreach ($yPositions as $y) {
             foreach ($xPositions as $x) {
