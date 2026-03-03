@@ -609,7 +609,7 @@ function AppContent() {
                       desc: 'Попробовать сервис и сделать первые креативы',
                       monthPrice: 19,
                       yearPrice: 15,
-                      videos: 15,
+                      videos: 16,
                       popular: false
                     },
                     {
@@ -617,7 +617,7 @@ function AppContent() {
                       desc: 'Для регулярной рекламы и большего объёма',
                       monthPrice: 49,
                       yearPrice: 39,
-                      videos: 40,
+                      videos: 42,
                       popular: true
                     },
                     {
@@ -625,7 +625,7 @@ function AppContent() {
                       desc: 'Для команд и высокого объёма генерации',
                       monthPrice: 119,
                       yearPrice: 95,
-                      videos: 100,
+                      videos: 110,
                       popular: false
                     },
                   ].map((plan, index) => {
