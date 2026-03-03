@@ -238,7 +238,7 @@ function AppContent() {
                     <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/10 text-primary mb-6 group-hover:bg-primary group-hover:text-white transition-colors">
                       <Video className="w-7 h-7" />
                     </div>
-                    <div className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-2">500+</div>
+                    <div className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-2">100+</div>
                     <p className="text-gray-600 font-medium">готовых сцен и шаблонов в каталоге</p>
                   </div>
                   <div className="group bg-white rounded-2xl p-8 border border-gray-100 shadow-sm hover:shadow-xl hover:border-primary/30 transition-all duration-300 text-center relative md:shadow-lg md:scale-105">
@@ -789,7 +789,7 @@ function AppContent() {
                   Готовы создать свое первое AI-видео?
                 </h2>
                 <p className="text-xl text-blue-100 mb-10 max-w-2xl mx-auto">
-                  Присоединяйтесь к тысячам маркетологов, которые уже используют Veydo для создания эффективной рекламы
+                  Создайте своё видео для соцсетей за минуту
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                   <button
