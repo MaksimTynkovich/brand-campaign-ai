@@ -7,31 +7,64 @@ const defaultForm = {
   original_prompt: '',
   default_voiceover: '',
   sort_order: '',
-  preview: null,
   example_video: null,
   reference_images: [],
-  existingPreviewUrl: null,
   existingExampleVideoUrl: null,
 };
 
 function FileDrop({ label, hint, accept, multiple, value, onChange, currentUrl, currentLabel }) {
   const inputRef = useRef(null);
   const [drag, setDrag] = useState(false);
+  const [previewUrls, setPreviewUrls] = useState([]);
+
+  // Локальные превью для новых файлов (из File / File[])
+  useEffect(() => {
+    // очищаем старые URL
+    previewUrls.forEach((url) => URL.revokeObjectURL(url));
+    const next = [];
+    if (multiple) {
+      if (Array.isArray(value)) {
+        value.forEach((file) => {
+          if (file instanceof File) {
+            next.push(URL.createObjectURL(file));
+          }
+        });
+      }
+    } else if (value instanceof File) {
+      next.push(URL.createObjectURL(value));
+    }
+    setPreviewUrls(next);
+
+    return () => {
+      next.forEach((url) => URL.revokeObjectURL(url));
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value, multiple]);
 
   const handleDrop = (e) => {
     e.preventDefault();
     setDrag(false);
     const files = e.dataTransfer?.files;
     if (!files?.length) return;
-    if (multiple) onChange(Array.from(files));
-    else onChange(files[0]);
+    if (multiple) {
+      const incoming = Array.from(files);
+      const existing = Array.isArray(value) ? value : [];
+      onChange([...existing, ...incoming]);
+    } else {
+      onChange(files[0]);
+    }
   };
 
   const handleChange = (e) => {
     const files = e.target.files;
     if (!files?.length) return;
-    if (multiple) onChange(Array.from(files));
-    else onChange(files[0]);
+    if (multiple) {
+      const incoming = Array.from(files);
+      const existing = Array.isArray(value) ? value : [];
+      onChange([...existing, ...incoming]);
+    } else {
+      onChange(files[0]);
+    }
   };
 
   const clear = () => {
@@ -58,40 +91,124 @@ function FileDrop({ label, hint, accept, multiple, value, onChange, currentUrl, 
         onDragLeave={() => setDrag(false)}
         onDrop={handleDrop}
         onClick={() => inputRef.current?.click()}
-        className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-colors ${
-          drag ? 'border-primary bg-primary/5' : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'
+        className={`rounded-2xl p-4 text-center cursor-pointer border-2 border-dashed transition-all duration-200 ${
+          drag
+            ? 'border-primary bg-primary/5 shadow-sm'
+            : 'border-gray-300 hover:border-primary/50 hover:bg-gray-50/80'
         }`}
       >
         {hasNew && !multiple && (
-          <div className="flex items-center justify-between gap-2 mb-2">
-            <span className="text-sm text-gray-700 truncate">{value?.name}</span>
-            <button type="button" onClick={(e) => { e.stopPropagation(); clear(); }} className="text-red-500 hover:text-red-700 text-sm">
-              Убрать
-            </button>
+          <div className="flex flex-col items-center gap-2 mb-2">
+            {/* Превью для одиночного файла */}
+            {previewUrls[0] && accept.includes('video') && (
+              <video
+                src={previewUrls[0]}
+                className="w-full max-h-40 rounded-lg border border-gray-200 object-cover"
+                controls
+                muted
+              />
+            )}
+            {previewUrls[0] && accept.startsWith('image') && (
+              <img
+                src={previewUrls[0]}
+                alt=""
+                className="w-full max-h-40 rounded-lg object-cover border border-gray-200"
+              />
+            )}
+            <div className="flex items-center justify-between gap-2 w-full">
+              <span className="text-sm text-gray-700 truncate">
+                {value?.name}
+              </span>
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); clear(); }}
+                className="text-red-500 hover:text-red-700 text-sm"
+              >
+                Убрать
+              </button>
+            </div>
           </div>
         )}
         {hasNew && multiple && (
-          <div className="flex flex-wrap gap-2 mb-2 justify-center">
-            {value?.map((f, i) => (
-              <span key={i} className="text-xs bg-gray-100 px-2 py-1 rounded">{f.name}</span>
-            ))}
-            <button type="button" onClick={(e) => { e.stopPropagation(); clear(); }} className="text-red-500 hover:text-red-700 text-xs">
-              Очистить
-            </button>
+          <div className="flex flex-col gap-2 mb-2">
+            {accept.startsWith('image') && previewUrls.length > 0 && (
+              <div className="flex flex-wrap gap-2 justify-center">
+                {previewUrls.map((url, i) => (
+                  <img
+                    key={url}
+                    src={url}
+                    alt=""
+                    className="w-16 h-16 rounded-md object-cover border border-gray-200"
+                  />
+                ))}
+              </div>
+            )}
+            <div className="flex flex-wrap gap-2 justify-center">
+              {Array.isArray(value) && value.map((f, i) => (
+                <span key={i} className="text-xs bg-gray-100 px-2 py-1 rounded">
+                  {f.name}
+                </span>
+              ))}
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); clear(); }}
+                className="text-red-500 hover:text-red-700 text-xs"
+              >
+                Очистить
+              </button>
+            </div>
           </div>
         )}
         {hasCurrent && accept.startsWith('image') && (
-          <div className="mb-2">
-            <img src={getStorageUrl(currentUrl)} alt="" className="mx-auto max-h-24 rounded-lg object-cover" />
-            <p className="text-xs text-gray-500 mt-1">{currentLabel || 'Текущее превью'}</p>
+          <div className="mb-2 flex flex-col items-center gap-2">
+            <img
+              src={getStorageUrl(currentUrl)}
+              alt=""
+              className="mx-auto max-h-24 rounded-lg object-cover border border-gray-200"
+            />
+            <p className="text-xs text-gray-500">
+              {currentLabel || 'Текущее превью. Нажмите, чтобы заменить.'}
+            </p>
           </div>
         )}
         {hasCurrent && accept.includes('video') && (
-          <p className="text-sm text-gray-600 mb-2">{currentLabel || 'Текущее видео загружено'}</p>
+          <p className="text-sm text-gray-600 mb-2">
+            {currentLabel || 'Видео загружено. Нажмите, чтобы заменить.'}
+          </p>
         )}
-        {(!hasNew && !hasCurrent) || (hasCurrent && !hasNew) ? (
-          <p className="text-sm text-gray-500">Перетащите сюда или нажмите для выбора</p>
-        ) : null}
+        {!hasNew && !hasCurrent && (
+          <div className="flex flex-col items-center gap-2 text-gray-500">
+            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 text-gray-400">
+              <svg
+                className="w-5 h-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M4 16V17C4 18.1046 4.89543 19 6 19H18C19.1046 19 20 18.1046 20 17V16"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="M12 5V15M12 5L8.5 8.5M12 5L15.5 8.5"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+            <div className="text-sm">
+              <span className="font-medium text-gray-700">Перетащите файл</span>
+              <span className="text-gray-400"> или нажмите, чтобы выбрать</span>
+            </div>
+            <p className="text-xs text-gray-400">
+              {accept.startsWith('image') ? 'Поддерживаются JPG, PNG, WEBP' : 'MP4, WebM или MOV'}
+            </p>
+          </div>
+        )}
       </div>
       {hint && <p className="text-xs text-gray-500">{hint}</p>}
     </div>
@@ -133,7 +250,7 @@ function AdminTemplates() {
 
   const openCreate = () => {
     setEditingId(null);
-    setForm({ ...defaultForm, existingPreviewUrl: null, existingExampleVideoUrl: null });
+    setForm({ ...defaultForm });
     setModalOpen(true);
     setError(null);
   };
@@ -149,10 +266,8 @@ function AdminTemplates() {
         original_prompt: full.original_prompt ?? '',
         default_voiceover: full.default_voiceover ?? '',
         sort_order: full.sort_order ?? '',
-        preview: null,
         example_video: null,
         reference_images: [],
-        existingPreviewUrl: full.preview_url ?? null,
         existingExampleVideoUrl: full.example_video_url ?? full.example_video_path ?? null,
       });
     } catch (e) {
@@ -163,7 +278,7 @@ function AdminTemplates() {
   const closeModal = () => {
     setModalOpen(false);
     setEditingId(null);
-    setForm({ ...defaultForm, existingPreviewUrl: null, existingExampleVideoUrl: null });
+    setForm({ ...defaultForm });
   };
 
   const handleSubmit = async (e) => {
@@ -175,7 +290,6 @@ function AdminTemplates() {
       original_prompt: form.original_prompt,
       default_voiceover: form.default_voiceover || undefined,
       sort_order: form.sort_order === '' ? undefined : Number(form.sort_order),
-      preview: form.preview instanceof File ? form.preview : undefined,
       example_video: form.example_video instanceof File ? form.example_video : undefined,
       reference_images: Array.isArray(form.reference_images) && form.reference_images.length ? form.reference_images : undefined,
     };
@@ -365,17 +479,6 @@ function AdminTemplates() {
                 <section>
                   <h3 className="text-sm font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-100">Медиафайлы</h3>
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div>
-                      <FileDrop
-                        label="Превью (изображение)"
-                        hint={editingId ? 'Оставьте пустым, чтобы не менять' : undefined}
-                        accept="image/*"
-                        value={form.preview}
-                        onChange={(v) => setForm((f) => ({ ...f, preview: v }))}
-                        currentUrl={form.existingPreviewUrl}
-                        currentLabel="Текущее превью"
-                      />
-                    </div>
                     <div>
                       <FileDrop
                         label="Пример видео"

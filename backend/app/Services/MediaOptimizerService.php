@@ -129,6 +129,67 @@ class MediaOptimizerService
         return $this->optimizeAndStoreVideo($file, $diskPath, $disk);
     }
 
+    /**
+     * Извлекает один кадр из уже сохранённого видео и сохраняет как JPEG превью.
+     *
+     * @param string $videoDiskPath  путь к видео относительно диска (например templates/videos/xxx.mp4)
+     * @param string $targetDirectory директория для превью относительно диска (например templates/previews)
+     * @param string $disk           имя диска (по умолчанию public)
+     * @return string|null           diskPath к превью или null при ошибке
+     */
+    public function extractVideoPreviewFrame(string $videoDiskPath, string $targetDirectory, string $disk = 'public'): ?string
+    {
+        $ffmpeg = $this->findFfmpeg();
+        if ($ffmpeg === null) {
+            return null;
+        }
+
+        $videoFull = Storage::disk($disk)->path($videoDiskPath);
+        if (!is_file($videoFull)) {
+            return null;
+        }
+
+        $filename = uniqid('preview_', true).'.jpg';
+        $diskPath = rtrim($targetDirectory, '/').'/'.$filename;
+        $imageFull = Storage::disk($disk)->path($diskPath);
+        $dir = dirname($imageFull);
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
+
+        $command = [
+            $ffmpeg,
+            '-y',
+            '-i', $videoFull,
+            '-frames:v', '1',
+            '-q:v', '2',
+            $imageFull,
+        ];
+
+        try {
+            $process = new \Symfony\Component\Process\Process($command);
+            $process->setTimeout(60);
+            $process->run();
+            if ($process->isSuccessful() && is_file($imageFull) && filesize($imageFull) > 0) {
+                return $diskPath;
+            }
+
+            Log::warning('MediaOptimizer: preview frame extraction failed', [
+                'video' => $videoDiskPath,
+                'output' => $process->getErrorOutput(),
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('MediaOptimizer: extractVideoPreviewFrame exception', [
+                'video' => $videoDiskPath,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        @unlink($imageFull);
+
+        return null;
+    }
+
     private function runFfmpegCompress(string $inputPath, string $outputPath): bool
     {
         $ffmpeg = $this->findFfmpeg();

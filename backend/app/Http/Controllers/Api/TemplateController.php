@@ -46,14 +46,6 @@ class TemplateController extends Controller
         $data = $request->safe()->except(['preview', 'example_video', 'reference_images']);
         $data['sort_order'] = $data['sort_order'] ?? 0;
 
-        if ($request->hasFile('preview')) {
-            $data['preview_url'] = $this->mediaOptimizer->storeOptimizedImage(
-                $request->file('preview'),
-                'templates',
-                'public'
-            );
-        }
-
         $template = Template::create($data);
 
         if ($request->hasFile('example_video')) {
@@ -63,6 +55,26 @@ class TemplateController extends Controller
                 'public'
             );
             $template->update(['example_video_path' => $data['example_video_path']]);
+
+            // Если превью не загружено отдельно — создаём его из первого кадра видео.
+            if (!$request->hasFile('preview')) {
+                $previewPath = $this->mediaOptimizer->extractVideoPreviewFrame(
+                    $data['example_video_path'],
+                    'templates/previews',
+                    'public'
+                );
+                if ($previewPath) {
+                    $template->update(['preview_url' => $previewPath]);
+                }
+            }
+        } elseif ($request->hasFile('preview')) {
+            // Если видео нет, но превью передано — сохраняем его как раньше.
+            $data['preview_url'] = $this->mediaOptimizer->storeOptimizedImage(
+                $request->file('preview'),
+                'templates',
+                'public'
+            );
+            $template->update(['preview_url' => $data['preview_url']]);
         }
 
         if ($request->hasFile('reference_images')) {
@@ -89,17 +101,6 @@ class TemplateController extends Controller
     {
         $data = $request->safe()->except(['preview', 'example_video', 'reference_images']);
 
-        if ($request->hasFile('preview')) {
-            if ($template->getRawOriginal('preview_url')) {
-                Storage::disk('public')->delete($template->getRawOriginal('preview_url'));
-            }
-            $data['preview_url'] = $this->mediaOptimizer->storeOptimizedImage(
-                $request->file('preview'),
-                'templates',
-                'public'
-            );
-        }
-
         if ($request->hasFile('example_video')) {
             $raw = $template->getRawOriginal('example_video_path');
             if (is_string($raw) && !str_starts_with($raw, 'http')) {
@@ -108,6 +109,34 @@ class TemplateController extends Controller
             $data['example_video_path'] = $this->mediaOptimizer->storeOptimizedVideo(
                 $request->file('example_video'),
                 'templates/videos',
+                'public'
+            );
+
+            // Если превью не передано отдельно — обновляем превью из нового видео.
+            if (!$request->hasFile('preview')) {
+                $previewRaw = $template->getRawOriginal('preview_url');
+                if ($previewRaw && !str_starts_with($previewRaw, 'http')) {
+                    Storage::disk('public')->delete($previewRaw);
+                }
+                $previewPath = $this->mediaOptimizer->extractVideoPreviewFrame(
+                    $data['example_video_path'],
+                    'templates/previews',
+                    'public'
+                );
+                if ($previewPath) {
+                    $data['preview_url'] = $previewPath;
+                }
+            }
+        }
+
+        if ($request->hasFile('preview')) {
+            $previewRaw = $template->getRawOriginal('preview_url');
+            if ($previewRaw && !str_starts_with($previewRaw, 'http')) {
+                Storage::disk('public')->delete($previewRaw);
+            }
+            $data['preview_url'] = $this->mediaOptimizer->storeOptimizedImage(
+                $request->file('preview'),
+                'templates',
                 'public'
             );
         }
