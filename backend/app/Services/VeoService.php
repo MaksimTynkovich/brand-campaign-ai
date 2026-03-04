@@ -372,11 +372,33 @@ class VeoService
 
     private function resolveTtfFontPath(): ?string
     {
+        $envPath = env('WATERMARK_FONT_PATH');
+        if (is_string($envPath) && $envPath !== '' && is_file($envPath)) {
+            return $envPath;
+        }
+
+        $projectCandidates = [
+            base_path('resources/fonts/veydo-watermark.ttf'),
+            base_path('resources/fonts/DejaVuSans.ttf'),
+        ];
+        foreach ($projectCandidates as $path) {
+            if (is_file($path)) {
+                return $path;
+            }
+        }
+
+        // 3) Типичные системные пути: сначала macOS, затем Linux.
         $candidates = [
+            // macOS
             '/System/Library/Fonts/Supplemental/Arial.ttf',
             '/Library/Fonts/Arial.ttf',
             '/System/Library/Fonts/Supplemental/Arial Unicode.ttf',
             '/System/Library/Fonts/Supplemental/Helvetica.ttc',
+            // Linux
+            '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
+            '/usr/share/fonts/truetype/freefont/FreeSans.ttf',
+            '/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf',
+            '/usr/share/fonts/opentype/noto/NotoSans-Regular.otf',
         ];
         foreach ($candidates as $path) {
             if (is_file($path)) {
