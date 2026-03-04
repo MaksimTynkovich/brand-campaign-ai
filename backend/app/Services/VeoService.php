@@ -27,9 +27,12 @@ class VeoService
      * Запустить генерацию, дождаться результата, сохранить видео в storage.
      *
      * @param array<int, array{disk: string, path: string}> $imageItems Каждый элемент: disk ('local'|'public'), path (относительный)
-     * @return string|null URL готового видео в нашем storage или null при ошибке/отсутствии ключа
+     * @return array{final: string, original: string, watermarked: ?string}|null
+     *         final       — URL, который сейчас нужно показывать пользователю
+     *         original    — URL оригинального видео без вотермарки
+     *         watermarked — URL видео с вотермаркой (null, если не применялась или не удалась)
      */
-    public function generate(string $prompt, array $imageItems = [], bool $withWatermark = false): ?string
+    public function generate(string $prompt, array $imageItems = [], bool $withWatermark = false): ?array
     {
         $imageUrls = $this->resolveImageUrls($imageItems);
         $taskId = $this->kieVeo->createTask($prompt, $imageUrls, '9:16', 'veo3_fast');
@@ -57,9 +60,20 @@ class VeoService
                         return null;
                     }
 
-                    return $withWatermark
-                        ? $this->applyGridWatermark($savedUrl, 'veydo.cc')
-                        : $savedUrl;
+                    $watermarkedUrl = null;
+                    if ($withWatermark) {
+                        $wm = $this->applyGridWatermark($savedUrl, 'veydo.cc');
+                        // Если вотермарка не применилась (вернулся тот же URL), считаем, что её нет.
+                        $watermarkedUrl = $wm !== $savedUrl ? $wm : null;
+                    }
+
+                    $finalUrl = $withWatermark && $watermarkedUrl ? $watermarkedUrl : $savedUrl;
+
+                    return [
+                        'final' => $finalUrl,
+                        'original' => $savedUrl,
+                        'watermarked' => $watermarkedUrl,
+                    ];
                 }
                 Log::warning('VeoService: successFlag=1 but no resultUrls', ['taskId' => $taskId]);
 

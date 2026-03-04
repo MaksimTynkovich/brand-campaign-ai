@@ -18,6 +18,8 @@ class GenerationJob extends Model
         'user_prompt',
         'merged_prompt',
         'video_path',
+        'original_video_path',
+        'watermarked_video_path',
         'error_message',
         'input',
     ];

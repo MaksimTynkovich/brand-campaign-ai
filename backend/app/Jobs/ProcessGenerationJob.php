@@ -81,18 +81,22 @@ class ProcessGenerationJob implements ShouldQueue
 
         $user = $job->user()->first();
         $withWatermark = $user ? $user->shouldUseVideoWatermark() : true;
-        Log::info('[Generation] Запрос к Veo (Kie.ai)', ['job_id' => $job->id, 'prompt_length' => strlen($mergedPrompt), 'images_count' => count($allImageItems)]);
-        $videoPath = $veo->generate($mergedPrompt, $allImageItems, $withWatermark);
+        Log::info('[Generation] Запрос к Veo (Kie.ai)', ['job_id' => $job->id, 'prompt_length' => strlen($mergedPrompt), 'images_count' => count($allImageItems), 'with_watermark' => $withWatermark]);
+        $result = $veo->generate($mergedPrompt, $allImageItems, $withWatermark);
 
-        if ($videoPath !== null) {
+        if ($result !== null) {
             $job->update([
                 'status' => GenerationJob::STATUS_COMPLETED,
-                'video_path' => $videoPath,
+                'video_path' => $result['final'],
+                'original_video_path' => $result['original'],
+                'watermarked_video_path' => $result['watermarked'],
             ]);
         } else {
             $job->update([
                 'status' => GenerationJob::STATUS_COMPLETED,
                 'video_path' => config('app.url') . '/placeholder-video.mp4',
+                'original_video_path' => null,
+                'watermarked_video_path' => null,
                 'error_message' => null,
             ]);
         }

@@ -23,6 +23,7 @@ class GenerationController extends Controller
     public function myVideos(Request $request): JsonResponse
     {
         $userId = $request->user()?->id;
+        $user = $request->user();
         if (!$userId) {
             return response()->json(['data' => [], 'meta' => ['total' => 0]]);
         }
@@ -32,15 +33,14 @@ class GenerationController extends Controller
             ->orderByDesc('created_at')
             ->get();
 
-        $data = $jobs->map(function (GenerationJob $job) {
+        $data = $jobs->map(function (GenerationJob $job) use ($user) {
             $template = $job->template;
+            $videoUrl = $this->resolveVideoUrlForUser($job, $user);
             return [
                 'id' => $job->id,
                 'status' => $job->status,
                 'user_prompt' => $job->user_prompt,
-                'video_url' => $job->status === GenerationJob::STATUS_COMPLETED && $job->video_path
-                    ? $job->video_path
-                    : null,
+                'video_url' => $videoUrl,
                 'error_message' => $job->error_message,
                 'created_at' => $job->created_at->toIso8601String(),
                 'template' => $template ? [
@@ -150,9 +150,7 @@ class GenerationController extends Controller
             return response()->json(['error' => ['message' => 'Not Found', 'code' => 404, 'details' => []]], 404);
         }
 
-        $videoUrl = $job->status === GenerationJob::STATUS_COMPLETED && $job->video_path
-            ? $job->video_path
-            : null;
+        $videoUrl = $this->resolveVideoUrlForUser($job, $request->user());
 
         return response()->json([
             'data' => [
@@ -173,13 +171,20 @@ class GenerationController extends Controller
             ->where('user_id', $request->user()?->id)
             ->first();
 
-        if (!$job || $job->status !== GenerationJob::STATUS_COMPLETED || !$job->video_path) {
+        if (!$job || $job->status !== GenerationJob::STATUS_COMPLETED) {
             return response()->json([
                 'error' => ['message' => 'Not Found', 'code' => 404, 'details' => []],
             ], 404);
         }
 
-        $path = $this->videoPathToStorageRelative($job->video_path);
+        $videoUrl = $this->resolveVideoUrlForUser($job, $request->user());
+        if (!$videoUrl) {
+            return response()->json([
+                'error' => ['message' => 'Not Found', 'code' => 404, 'details' => []],
+            ], 404);
+        }
+
+        $path = $this->videoPathToStorageRelative($videoUrl);
         if (!$path || !Storage::disk('public')->exists($path)) {
             return response()->json([
                 'error' => ['message' => 'File not found', 'code' => 404, 'details' => []],
@@ -218,6 +223,31 @@ class GenerationController extends Controller
             ['Content-Type' => $mime],
             'inline'
         );
+    }
+
+    /**
+     * Выбрать, какую версию видео показывать пользователю в данный момент.
+     * - Платный план → если есть original_video_path, показываем его.
+     * - Бесплатный план → если есть watermarked_video_path, показываем его.
+     * - Legacy / fallback → поле video_path.
+     */
+    private function resolveVideoUrlForUser(GenerationJob $job, ?\App\Models\User $user): ?string
+    {
+        if ($job->status !== GenerationJob::STATUS_COMPLETED) {
+            return null;
+        }
+
+        $isPaid = $user ? $user->isPaidPlan() : false;
+
+        if ($isPaid && $job->original_video_path) {
+            return $job->original_video_path;
+        }
+
+        if (!$isPaid && $job->watermarked_video_path) {
+            return $job->watermarked_video_path;
+        }
+
+        return $job->video_path;
     }
 
     private function videoPathToStorageRelative(?string $videoPath): ?string
