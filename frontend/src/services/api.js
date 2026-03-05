@@ -285,6 +285,56 @@ class ApiService {
     return res.data ?? res;
   }
 
+  // AI Chat
+  async getChatSessions() {
+    const res = await this.request('/chat/sessions');
+    return { data: res.data ?? [], meta: res.meta ?? {} };
+  }
+
+  async getChatSession(sessionId) {
+    const res = await this.request(`/chat/sessions/${sessionId}`);
+    return res.data ?? { session: null, messages: [] };
+  }
+
+  async sendChatMessage({ sessionId = null, message, imageFiles = [] }) {
+    const token = localStorage.getItem('auth_token');
+    const url = `${API_BASE_URL}/chat/messages`;
+    const form = new FormData();
+    if (sessionId) form.append('session_id', String(sessionId));
+    form.append('message', String(message ?? ''));
+    imageFiles.forEach((file) => form.append('images[]', file));
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: form,
+    });
+
+    const text = await response.text();
+    const data = text ? JSON.parse(text) : {};
+    if (!response.ok) {
+      const err = new Error(data.error?.message || data.message || 'Request failed');
+      err.status = response.status;
+      throw err;
+    }
+
+    return data.data ?? data;
+  }
+
+  async startGenerationFromChat(sessionId, messageId = null) {
+    const res = await this.request('/chat/generate', {
+      method: 'POST',
+      body: JSON.stringify({
+        session_id: sessionId,
+        ...(messageId ? { message_id: messageId } : {}),
+      }),
+    });
+    return res.data ?? res;
+  }
+
   async getMyVideos() {
     const res = await this.request('/my-videos');
     return { data: res.data ?? [], meta: res.meta ?? {} };
@@ -331,6 +381,16 @@ class ApiService {
       method: 'PUT',
       body: JSON.stringify({ vision_system_prompt: visionPrompt }),
     });
+  }
+
+  async getAdminChatSessions() {
+    const res = await this.request('/admin/chat/sessions');
+    return { data: res.data ?? [], meta: res.meta ?? {} };
+  }
+
+  async getAdminChatSession(sessionId) {
+    const res = await this.request(`/admin/chat/sessions/${sessionId}`);
+    return res.data ?? { session: null, messages: [] };
   }
 
   // Auth
