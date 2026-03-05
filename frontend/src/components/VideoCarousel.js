@@ -203,7 +203,7 @@ function VideoCarousel() {
         }}
       >
         <div
-          className={`flex w-max animate-infinite-scroll ${isPaused ? '[animation-play-state:paused]' : ''}`}
+          className={`flex w-max animate-infinite-scroll [animation-duration:12s] ${isPaused ? '[animation-play-state:paused]' : ''}`}
         >
           {duplicated.map((item, index) => {
             const sourceIndex = index % items.length;
