@@ -205,7 +205,8 @@ class GenerationController extends Controller
     public function serveImage(Request $request): StreamedResponse|JsonResponse
     {
         $path = (string) $request->query('path');
-        if ($path === '' || str_contains($path, '..') || !str_starts_with($path, 'generation-input/')) {
+        $isAllowedPrefix = str_starts_with($path, 'generation-input/') || str_starts_with($path, 'chat-input/');
+        if ($path === '' || str_contains($path, '..') || !$isAllowedPrefix) {
             return response()->json(['error' => ['message' => 'Invalid path', 'code' => 400, 'details' => []]], 400);
         }
 
@@ -213,7 +214,8 @@ class GenerationController extends Controller
             return response()->json(['error' => ['message' => 'Not Found', 'code' => 404, 'details' => []]], 404);
         }
 
-        $mime = Storage::disk('local')->mimeType($path) ?: 'application/octet-stream';
+        $fullPath = Storage::disk('local')->path($path);
+        $mime = @mime_content_type($fullPath) ?: 'application/octet-stream';
 
         return response()->streamDownload(
             function () use ($path) {
