@@ -396,7 +396,9 @@ function MyVideos() {
                       playsInline
                       muted={!cardSoundOn[item.id]}
                       preload="auto"
-                      className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                      className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-200 ${
+                        item.template?.preview_url ? 'opacity-0 group-hover:opacity-100' : 'opacity-100'
+                      }`}
                     />
                     <button
                       type="button"
