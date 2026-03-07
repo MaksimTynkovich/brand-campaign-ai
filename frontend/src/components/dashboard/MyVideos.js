@@ -469,19 +469,7 @@ function MyVideos() {
                 <div className="absolute top-3 left-3">
                   <StatusBadge status={item.status} />
                 </div>
-                {item.status === 'failed' && item.error_message && (
-                  <div className="absolute bottom-0 left-0 right-0 p-3 bg-black/80 text-white text-xs line-clamp-2 backdrop-blur-sm">
-                    {item.error_message}
-                  </div>
-                )}
               </div>
-              {!item.video_url && (
-                <div className="p-4">
-                  <div className="py-2 rounded-xl bg-gray-100 text-gray-500 text-sm font-medium text-center">
-                    Ожидание
-                  </div>
-                </div>
-              )}
             </div>
           ))}
         </div>

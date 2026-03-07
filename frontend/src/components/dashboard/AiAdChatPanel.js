@@ -15,9 +15,15 @@ function trimTitle(value) {
 
 const QUICK_PROMPTS = [
   'Сделай 5 hook-ов для моего товара',
-  'Напиши UGC-сценарий на 10 секунд',
+  'Напиши UGC-сценарий на 8 секунд',
   'Дай 3 разных рекламных угла для TikTok',
   'Проанализируй фото и предложи оффер',
+  'Придумай сценарий в формате «до и после»',
+  'Напиши сценарий для Reels с сильным CTA в конце',
+  'Дай идеи для сторис с опросом про продукт',
+  'Предложи 3 боли аудитории и оффер под каждую',
+  'Сделай сценарий в стиле неформального отзыва',
+  'Придумай заставку и концовку для рекламного ролика',
 ];
 
 function DotTyping() {
@@ -343,7 +349,6 @@ export default function AiAdChatPanel() {
             </div>
             <div>
               <h2 className="text-base sm:text-lg font-semibold text-gray-900">AI-чат для создания рекламы</h2>
-              <p className="text-xs sm:text-sm text-gray-600">Стиль ChatGPT: диалог, фото-анализ и готовые креативы</p>
             </div>
           </div>
         </div>
@@ -537,7 +542,7 @@ export default function AiAdChatPanel() {
                   onChange={(e) => setMessageInput(e.target.value)}
                   onKeyDown={handleKeyDown}
                   rows={3}
-                  placeholder="Напиши задачу для AI... (Enter — отправить, Shift+Enter — новая строка)"
+                  placeholder="Напиши задачу для AI и получи видео-рекламу"
                   className="w-full px-3 py-2.5 text-sm outline-none resize-none"
                 />
                 <div className="px-3 py-2 border-t border-gray-100 flex items-center gap-2">

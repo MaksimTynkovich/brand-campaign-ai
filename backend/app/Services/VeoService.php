@@ -161,7 +161,12 @@ class VeoService
     private function downloadAndSave(string $videoUrl): ?string
     {
         try {
-            $response = Http::timeout(120)->get($videoUrl);
+            $client = Http::timeout(120);
+            $proxy = config('services.openai.proxy');
+            if (! empty($proxy)) {
+                $client = $client->withOptions(['proxy' => $proxy]);
+            }
+            $response = $client->get($videoUrl);
             if (!$response->successful()) {
                 Log::warning('VeoService: failed to download video', ['url' => $videoUrl]);
 
