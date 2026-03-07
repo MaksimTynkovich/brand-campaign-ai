@@ -450,43 +450,48 @@ export default function AiAdChatPanel() {
                       )}
                       {isReadyAssistantMessage(message) && (
                         <div className="mt-3 space-y-2">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <button
-                              type="button"
-                              onClick={() => startGenerationFromMessage(message.id)}
-                              disabled={generationState.status === 'starting' || generationState.status === 'processing'}
-                              className="px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-900 text-white hover:opacity-90 disabled:opacity-60"
-                            >
-                              {generationState.status === 'completed' && generationState.messageId === message.id
-                                ? 'Сгенерировать еще раз'
-                                : 'Сгенерировать видео'}
-                            </button>
-                            {(generationState.status === 'starting' || generationState.status === 'processing') && generationState.messageId === message.id && (
-                              <span className="text-xs text-gray-500">Генерация запущена, ждем результат...</span>
-                            )}
-                            {generationState.status === 'failed' && generationState.messageId === message.id && (
-                              <span className="text-xs text-red-600">{generationState.error}</span>
-                            )}
-                          </div>
-
-                          {generationState.status === 'completed' && generationState.messageId === message.id && (
-                            <div className="space-y-2">
-                              {generationState.videoUrl && (
-                                <video
-                                  src={generationState.videoUrl}
-                                  controls
-                                  className="w-full max-w-xs rounded-lg border border-gray-200 bg-black"
-                                />
-                              )}
-                              <button
-                                type="button"
-                                onClick={() => navigate('/dashboard/my-videos')}
-                                className="px-3 py-1.5 rounded-lg text-xs font-medium border border-gray-300 hover:bg-gray-50"
-                              >
-                                Открыть в "Мои видео"
-                              </button>
-                            </div>
-                          )}
+                          {(() => {
+                            const persistedVideoUrl = message.generation_video_url ? getStorageUrl(message.generation_video_url) : null;
+                            const justCompletedUrl = generationState.status === 'completed' && generationState.messageId === message.id ? generationState.videoUrl : null;
+                            const displayVideoUrl = justCompletedUrl || persistedVideoUrl;
+                            const hasVideo = Boolean(displayVideoUrl);
+                            return (
+                              <>
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={() => startGenerationFromMessage(message.id)}
+                                    disabled={generationState.status === 'starting' || generationState.status === 'processing'}
+                                    className="px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-900 text-white hover:opacity-90 disabled:opacity-60"
+                                  >
+                                    {hasVideo ? 'Сгенерировать еще раз' : 'Сгенерировать видео'}
+                                  </button>
+                                  {(generationState.status === 'starting' || generationState.status === 'processing') && generationState.messageId === message.id && (
+                                    <span className="text-xs text-gray-500">Генерация запущена, ждем результат...</span>
+                                  )}
+                                  {generationState.status === 'failed' && generationState.messageId === message.id && (
+                                    <span className="text-xs text-red-600">{generationState.error}</span>
+                                  )}
+                                </div>
+                                {displayVideoUrl && (
+                                  <div className="space-y-2">
+                                    <video
+                                      src={displayVideoUrl}
+                                      controls
+                                      className="w-full max-w-xs rounded-lg border border-gray-200 bg-black"
+                                    />
+                                    <button
+                                      type="button"
+                                      onClick={() => navigate('/dashboard/my-videos')}
+                                      className="px-3 py-1.5 rounded-lg text-xs font-medium border border-gray-300 hover:bg-gray-50"
+                                    >
+                                      Открыть в "Мои видео"
+                                    </button>
+                                  </div>
+                                )}
+                              </>
+                            );
+                          })()}
                         </div>
                       )}
                     </div>

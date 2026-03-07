@@ -58,7 +58,7 @@ class KieVeoService
         }
 
         $client = Http::withToken($this->apiKey)->timeout(60)->asJson();
-        $proxy = config('services.openai.proxy');
+        $proxy = config('services.kie_veo.proxy');
         if (! empty($proxy)) {
             $client = $client->withOptions(['proxy' => $proxy]);
         }
@@ -102,7 +102,7 @@ class KieVeoService
     {
         $url = $this->baseUrl . '/api/v1/veo/record-info';
         $client = Http::withToken($this->apiKey)->timeout(30);
-        $proxy = config('services.openai.proxy');
+        $proxy = config('services.kie_veo.proxy');
         if (! empty($proxy)) {
             $client = $client->withOptions(['proxy' => $proxy]);
         }

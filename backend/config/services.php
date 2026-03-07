@@ -42,12 +42,13 @@ return [
 
     'openai' => [
         'api_key' => env('OPENAI_API_KEY'),
-        'proxy' => env('OPENAI_PROXY'), // например http://proxy.example.com:8080 или http://user:pass@host:8080 (используется и для запросов к Kie.ai)
+        'proxy' => env('OPENAI_PROXY'), // например http://proxy.example.com:8080 или http://user:pass@host:8080
     ],
 
     'kie_veo' => [
         'api_key' => env('KIE_VEO_API_KEY'),
         'base_url' => env('KIE_VEO_BASE_URL', 'https://api.kie.ai'),
+        'proxy' => env('KIE_VEO_PROXY'), // если не задан — запросы к Kie идут без прокси (можно оставить пустым при OPENAI_PROXY)
     ],
 
 ];

@@ -57,7 +57,23 @@ class ChatController extends Controller
             ->where('chat_session_id', $session->id)
             ->orderBy('id')
             ->get()
-            ->map(fn (ChatMessage $message) => $this->serializeMessage($message));
+            ->map(fn (ChatMessage $message) => $this->serializeMessage($message))
+            ->map(function (array $msg) use ($request) {
+                $user = $request->user();
+                $jobId = $msg['meta']['generation_job_id'] ?? null;
+                if (! $jobId || ! $user) {
+                    return $msg;
+                }
+                $job = GenerationJob::where('id', $jobId)->where('user_id', $user->id)->first();
+                if (! $job || $job->status !== GenerationJob::STATUS_COMPLETED) {
+                    return $msg;
+                }
+                $msg['generation_video_url'] = $this->resolveVideoUrlForJob($job, $user);
+
+                return $msg;
+            })
+            ->values()
+            ->all();
 
         return response()->json([
             'data' => [
@@ -411,6 +427,10 @@ class ChatController extends Controller
      * @param  mixed  $attachments
      * @return array<int, string>
      */
+    /**
+     * @param  mixed  $attachments
+     * @return array<int, string>
+     */
     private function extractStoredLocalPaths(mixed $attachments): array
     {
         if (!is_array($attachments)) {
@@ -423,5 +443,21 @@ class ChatController extends Controller
             ->filter(fn ($path) => Storage::disk('local')->exists($path))
             ->values()
             ->all();
+    }
+
+    private function resolveVideoUrlForJob(GenerationJob $job, ?\App\Models\User $user): ?string
+    {
+        if ($job->status !== GenerationJob::STATUS_COMPLETED) {
+            return null;
+        }
+        $isPaid = $user ? $user->isPaidPlan() : false;
+        if ($isPaid && $job->original_video_path) {
+            return $job->original_video_path;
+        }
+        if (! $isPaid && $job->watermarked_video_path) {
+            return $job->watermarked_video_path;
+        }
+
+        return $job->video_path;
     }
 }

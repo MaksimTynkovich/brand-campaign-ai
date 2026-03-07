@@ -161,8 +161,9 @@ class VeoService
     private function downloadAndSave(string $videoUrl): ?string
     {
         try {
-            $client = Http::timeout(120);
-            $proxy = config('services.openai.proxy');
+            // Таймаут увеличен: видео ~5 MB при медленном канале не успевает за 120 сек
+            $client = Http::timeout(600);
+            $proxy = config('services.kie_veo.proxy');
             if (! empty($proxy)) {
                 $client = $client->withOptions(['proxy' => $proxy]);
             }
