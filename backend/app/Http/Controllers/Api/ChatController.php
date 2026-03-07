@@ -173,7 +173,7 @@ class ChatController extends Controller
         ], 201);
     }
 
-    public function startGeneration(StartChatGenerationRequest $request, AdChatService $chatService): JsonResponse
+    public function startGeneration(StartChatGenerationRequest $request): JsonResponse
     {
         $user = $request->user();
         if (!$user) {
@@ -224,36 +224,29 @@ class ChatController extends Controller
             ], 422);
         }
 
+        // Берём до 3 последних фото из сообщений пользователя (новые первыми, без AI-выборки)
         $historyUserMessages = ChatMessage::query()
             ->where('chat_session_id', $session->id)
             ->where('role', ChatMessage::ROLE_USER)
             ->where('id', '<=', $assistantMessage->id)
             ->whereNotNull('attachments')
-            ->latest('id')
+            ->orderByDesc('id')
             ->limit(50)
             ->get();
 
-        $allCandidatePaths = [];
+        $storedPaths = [];
+        $maxImages = 3;
         foreach ($historyUserMessages as $userMessage) {
             $paths = $this->extractStoredLocalPaths($userMessage->attachments ?? []);
             foreach ($paths as $path) {
-                if (!isset($allCandidatePaths[$path])) {
-                    $allCandidatePaths[$path] = true;
+                if (count($storedPaths) >= $maxImages) {
+                    break 2;
+                }
+                if (! in_array($path, $storedPaths, true)) {
+                    $storedPaths[] = $path;
                 }
             }
         }
-
-        $candidateItems = collect(array_keys($allCandidatePaths))
-            ->map(fn (string $path) => ['disk' => 'local', 'path' => $path])
-            ->values()
-            ->all();
-
-        $selectedItems = $chatService->selectBestImagesForVideoPrompt($prompt, $candidateItems, 3);
-        $storedPaths = collect($selectedItems)
-            ->map(fn ($item) => $item['path'] ?? null)
-            ->filter(fn ($path) => is_string($path) && $path !== '')
-            ->values()
-            ->all();
 
         $user->spendCredits(1);
 
