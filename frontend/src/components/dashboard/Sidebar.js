@@ -207,6 +207,7 @@ function Sidebar({ isOpen, onToggle }) {
               <div className="min-w-0">
                 <p className="text-[11px] text-gray-400 uppercase tracking-wider">Кредиты</p>
                 <p className="text-lg font-semibold text-gray-900 tabular-nums leading-tight">{billing.credits ?? 0}</p>
+                <p className="text-[10px] text-gray-500 mt-0.5">1 кредит = 1 генерация</p>
               </div>
               <span className="text-[11px] text-gray-500 capitalize shrink-0">{billing.plan ?? 'trial'}</span>
             </Link>
