@@ -466,7 +466,7 @@ function AppContent() {
                   };
                   const rows = [
                     { criterion: 'Время', ai: 'Менее 3 минут на один креатив от идеи до готового видео', manual: 'Дни или недели: кастинг, съёмка, монтаж, согласования' },
-                    { criterion: 'Прайс', ai: 'От $19/мес — десятки видео в рамках подписки, без скрытых платежей', manual: 'От $500–2000 за ролик + права, рекламные пакеты, доработки' },
+                    { criterion: 'Прайс', ai: 'От 999 ₽/мес — десятки видео в рамках подписки, без скрытых платежей', manual: 'От $500–2000 за ролик + права, рекламные пакеты, доработки' },
                     { criterion: 'Масштаб', ai: 'Десятки вариантов в день: разные сценарии, хуки, форматы под тесты', manual: 'Обычно 1–3 варианта за цикл; больше — кратный рост бюджета' },
                     { criterion: 'Итерации', ai: 'Правки сценария и перегенерация за минуты, без доплат', manual: 'Любая правка — пересъёмка или долгий монтаж, часто за доплату' },
                     { criterion: 'Языки', ai: '35+ языков: сценарий, озвучка и субтитры из одного интерфейса', manual: 'Отдельный инфлюенсер или дубляж на каждый язык, дороже и дольше' },
@@ -607,30 +607,30 @@ function AppContent() {
                     {
                       name: 'Старт',
                       desc: 'Попробовать сервис и сделать первые креативы',
-                      monthPrice: 19,
-                      yearPrice: 15,
+                      monthPrice: 999,
+                      yearPrice: 799,
                       videos: 16,
                       popular: false
                     },
                     {
                       name: 'Профессионал',
                       desc: 'Для регулярной рекламы и большего объёма',
-                      monthPrice: 49,
-                      yearPrice: 39,
+                      monthPrice: 2999,
+                      yearPrice: 2399,
                       videos: 42,
                       popular: true
                     },
                     {
                       name: 'Бизнес',
                       desc: 'Для команд и высокого объёма генерации',
-                      monthPrice: 119,
-                      yearPrice: 95,
+                      monthPrice: 8999,
+                      yearPrice: 7199,
                       videos: 110,
                       popular: false
                     },
                   ].map((plan, index) => {
                     const price = billingPeriod === 'month' ? plan.monthPrice : plan.yearPrice;
-                    const savings = billingPeriod === 'year' ? plan.monthPrice * 12 - plan.yearPrice * 12 : 0;
+                    const savings = billingPeriod === 'year' ? (plan.monthPrice - plan.yearPrice) * 12 : 0;
                     return (
                       <div
                         key={index}
@@ -650,11 +650,11 @@ function AppContent() {
                           <p className={`text-sm ${plan.popular ? 'text-blue-100' : 'text-gray-500'}`}>{plan.desc}</p>
                         </div>
                         <div className="mb-6">
-                          <span className={`text-4xl font-extrabold tracking-tight ${plan.popular ? 'text-white' : 'text-gray-900'}`}>${price}</span>
+                          <span className={`text-4xl font-extrabold tracking-tight ${plan.popular ? 'text-white' : 'text-gray-900'}`}>{price.toLocaleString('ru-RU')} ₽</span>
                           <span className={plan.popular ? 'text-blue-200' : 'text-gray-500'}>/{billingPeriod === 'month' ? 'мес' : 'мес'}</span>
                           {billingPeriod === 'year' && savings > 0 && (
                             <p className={`text-sm mt-1 ${plan.popular ? 'text-blue-100' : 'text-green-600'}`}>
-                              Выгода ${savings} в год
+                              Выгода {savings.toLocaleString('ru-RU')} ₽ в год
                             </p>
                           )}
                         </div>

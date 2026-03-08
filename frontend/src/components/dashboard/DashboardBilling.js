@@ -1,9 +1,39 @@
-import React from 'react';
+import React, { useState } from 'react';
+import Checkmark from '../../assets/icons/Checkmark';
+
+const PLANS = [
+  {
+    name: 'Старт',
+    desc: 'Попробовать сервис и сделать первые креативы',
+    monthPrice: 999,
+    yearPrice: 799, // −20% при оплате за год
+    videos: 16,
+    popular: false,
+  },
+  {
+    name: 'Профессионал',
+    desc: 'Для регулярной рекламы и большего объёма',
+    monthPrice: 2999,
+    yearPrice: 2399,
+    videos: 42,
+    popular: true,
+  },
+  {
+    name: 'Бизнес',
+    desc: 'Для команд и высокого объёма генерации',
+    monthPrice: 8999,
+    yearPrice: 7199,
+    videos: 110,
+    popular: false,
+  },
+];
 
 function DashboardBilling() {
+  const [billingPeriod, setBillingPeriod] = useState('month');
+
   return (
     <div className="p-6 lg:p-8">
-      <div className="mb-8">
+      <div className="mb-10">
         <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
           Тариф и оплата
         </h1>
@@ -12,7 +42,7 @@ function DashboardBilling() {
         </p>
       </div>
 
-      <div className="max-w-2xl">
+      <div id="billing-contact" className="max-w-2xl scroll-mt-8">
         <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-8">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Связаться для оплаты</h2>
           <p className="text-gray-600 mb-6">
@@ -40,6 +70,102 @@ function DashboardBilling() {
               Telegram
             </a>
           </div>
+        </div>
+      </div>
+
+      {/* Карточки тарифов (как на главной) */}
+      <div className="mb-14 mt-5">
+        <div className="flex justify-center mb-8">
+          <div className="inline-flex items-center gap-1 p-1.5 bg-gray-100 rounded-xl">
+            <button
+              type="button"
+              onClick={() => setBillingPeriod('month')}
+              className={`px-5 py-2.5 rounded-lg font-semibold text-sm transition-all ${
+                billingPeriod === 'month'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Месяц
+            </button>
+            <button
+              type="button"
+              onClick={() => setBillingPeriod('year')}
+              className={`px-5 py-2.5 rounded-lg font-semibold text-sm transition-all flex items-center gap-2 ${
+                billingPeriod === 'year'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Год
+              <span className="text-xs font-medium text-green-600 bg-green-100 px-1.5 py-0.5 rounded">−20%</span>
+            </button>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+          {PLANS.map((plan, index) => {
+            const price = billingPeriod === 'month' ? plan.monthPrice : plan.yearPrice;
+            const savings = billingPeriod === 'year' ? plan.monthPrice * 12 - plan.yearPrice * 12 : 0;
+            const mailtoSubject = `Заявка на тариф Veydo — ${plan.name}`;
+            return (
+              <div
+                key={index}
+                className={`relative rounded-2xl p-6 md:p-8 transition-all duration-300 hover:shadow-xl ${
+                  plan.popular
+                    ? 'bg-primary text-white shadow-xl ring-4 ring-primary/20'
+                    : 'bg-gray-50 border border-gray-200 hover:border-gray-300 hover:bg-white'
+                }`}
+              >
+                {plan.popular && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white text-primary px-3 py-1 rounded-full text-xs font-bold shadow">
+                    Чаще всего выбирают
+                  </div>
+                )}
+                <div className="mb-6">
+                  <h3 className={`text-xl font-bold mb-1 ${plan.popular ? 'text-white' : 'text-gray-900'}`}>{plan.name}</h3>
+                  <p className={`text-sm ${plan.popular ? 'text-blue-100' : 'text-gray-500'}`}>{plan.desc}</p>
+                </div>
+                <div className="mb-6">
+                  <span className={`text-4xl font-extrabold tracking-tight ${plan.popular ? 'text-white' : 'text-gray-900'}`}>{price.toLocaleString('ru-RU')} ₽</span>
+                  <span className={plan.popular ? 'text-blue-200' : 'text-gray-500'}>/{billingPeriod === 'month' ? 'мес' : 'мес'}</span>
+                  {billingPeriod === 'year' && savings > 0 && (
+                    <p className={`text-sm mt-1 ${plan.popular ? 'text-blue-100' : 'text-green-600'}`}>
+                      Выгода {savings.toLocaleString('ru-RU')} ₽ в год
+                    </p>
+                  )}
+                </div>
+                <p className={`text-sm font-semibold mb-4 ${plan.popular ? 'text-blue-100' : 'text-gray-600'}`}>
+                  {plan.videos ? `${plan.videos} видео в месяц` : 'Безлимит видео'}
+                </p>
+                <ul className="space-y-2.5 mb-8 text-sm">
+                  {[
+                    'Генерация видео',
+                    'Готовые шаблоны',
+                    'AI-сценарии и хуки',
+                    'Без водяных знаков',
+                    'Качественное видео',
+                    'Разные языки',
+                    'Поддержка',
+                  ].map((feature, i) => (
+                    <li key={i} className="flex items-start gap-2.5">
+                      <Checkmark className={`w-5 h-5 flex-shrink-0 mt-0.5 ${plan.popular ? 'text-blue-200' : 'text-green-500'}`} />
+                      <span className={plan.popular ? 'text-blue-50' : 'text-gray-700'}>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+                <a
+                  href={`mailto:hello@veydo.cc?subject=${encodeURIComponent(mailtoSubject)}`}
+                  className={`block w-full py-3 rounded-xl font-semibold text-center transition-all ${
+                    plan.popular
+                      ? 'bg-white text-primary hover:bg-blue-50 shadow'
+                      : 'bg-gray-900 text-white hover:bg-gray-800'
+                  }`}
+                >
+                  Выбрать тариф
+                </a>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
