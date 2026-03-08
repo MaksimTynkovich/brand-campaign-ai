@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 
 const PLAN_OPTIONS = [
+  { value: 'trial', label: 'Триал' },
   { value: 'start', label: 'Старт' },
   { value: 'professional', label: 'Профессионал' },
   { value: 'business', label: 'Бизнес' },

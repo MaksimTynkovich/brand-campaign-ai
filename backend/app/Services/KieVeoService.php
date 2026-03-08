@@ -57,10 +57,12 @@ class KieVeoService
             $body['imageUrls'] = array_values($imageUrls);
         }
 
-        $response = Http::withToken($this->apiKey)
-            ->timeout(60)
-            ->asJson()
-            ->post($url, $body);
+        $client = Http::withToken($this->apiKey)->timeout(60)->asJson();
+        $proxy = config('services.kie_veo.proxy');
+        if (! empty($proxy)) {
+            $client = $client->withOptions(['proxy' => $proxy]);
+        }
+        $response = $client->post($url, $body);
 
         if (!$response->successful()) {
             Log::warning('KieVeoService::createTask failed', [
@@ -99,9 +101,12 @@ class KieVeoService
     public function getTaskDetails(string $taskId): array
     {
         $url = $this->baseUrl . '/api/v1/veo/record-info';
-        $response = Http::withToken($this->apiKey)
-            ->timeout(30)
-            ->get($url, ['taskId' => $taskId]);
+        $client = Http::withToken($this->apiKey)->timeout(30);
+        $proxy = config('services.kie_veo.proxy');
+        if (! empty($proxy)) {
+            $client = $client->withOptions(['proxy' => $proxy]);
+        }
+        $response = $client->get($url, ['taskId' => $taskId]);
 
         $default = [
             'successFlag' => 2,

@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\BillingController;
 use App\Http\Controllers\Api\AdminUserController;
 use App\Http\Controllers\Api\CarouselController;
 use App\Http\Controllers\Api\PromptSettingsController;
+use App\Http\Controllers\Api\ChatController;
 
 // Auth routes (public)
 Route::post('/auth/register', [AuthController::class, 'register']);
@@ -72,6 +73,10 @@ Route::get('/generation/serve-image', [GenerationController::class, 'serveImage'
     ->middleware('signed')
     ->name('generation.serve-image');
 
+Route::get('/chat/serve-image', [ChatController::class, 'serveImage'])
+    ->middleware('signed')
+    ->name('chat.serve-image');
+
 // Billing & Generation (protected)
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/billing', [BillingController::class, 'index']);
@@ -79,4 +84,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/generation/{jobId}/download', [GenerationController::class, 'download']);
     Route::post('/generation/start', [GenerationController::class, 'start']);
     Route::get('/generation/status/{jobId}', [GenerationController::class, 'status']);
+
+    Route::get('/chat/sessions', [ChatController::class, 'index']);
+    Route::get('/chat/sessions/{sessionId}', [ChatController::class, 'show']);
+    Route::post('/chat/messages', [ChatController::class, 'storeMessage']);
+    Route::post('/chat/generate', [ChatController::class, 'startGeneration']);
+
+    Route::get('/admin/chat/sessions', [ChatController::class, 'adminIndex'])->middleware('admin');
+    Route::get('/admin/chat/sessions/{sessionId}', [ChatController::class, 'adminShow'])->middleware('admin');
 });

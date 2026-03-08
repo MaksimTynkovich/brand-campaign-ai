@@ -48,6 +48,7 @@ return [
     'kie_veo' => [
         'api_key' => env('KIE_VEO_API_KEY'),
         'base_url' => env('KIE_VEO_BASE_URL', 'https://api.kie.ai'),
+        'proxy' => env('KIE_VEO_PROXY'), // если не задан — запросы к Kie идут без прокси (можно оставить пустым при OPENAI_PROXY)
     ],
 
 ];

@@ -63,6 +63,14 @@ function CarouselIcon({ className }) {
   );
 }
 
+function ChatIcon({ className }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h8M8 14h5m8-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+  );
+}
+
 function Sidebar({ isOpen, onToggle }) {
   const location = useLocation();
   const [billing, setBilling] = useState({ credits: 0, plan: 'trial' });
@@ -116,6 +124,11 @@ function Sidebar({ isOpen, onToggle }) {
             title: 'AI промпты',
             icon: SettingsIcon,
             path: '/dashboard/prompt-settings',
+          },
+          {
+            title: 'AI чаты',
+            icon: ChatIcon,
+            path: '/dashboard/chat-sessions',
           },
         ]
       : []),

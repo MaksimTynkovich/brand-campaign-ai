@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import api, { getStorageUrl } from '../../services/api';
+import AiAdChatPanel from './AiAdChatPanel';
 
 const POLL_INTERVAL_MS = 2000;
 const MAX_POLL_ATTEMPTS = 120;
@@ -16,7 +17,6 @@ function DashboardHome() {
   const [activeCategory, setActiveCategory] = useState(null);
   const [promptText, setPromptText] = useState('');
   const [images, setImages] = useState([null, null]);
-  const [imagePreviews, setImagePreviews] = useState([null, null]);
   const [generating, setGenerating] = useState(false);
   const [jobId, setJobId] = useState(null);
   const [resultVideoUrl, setResultVideoUrl] = useState(null);
@@ -25,7 +25,6 @@ function DashboardHome() {
   const [exampleSoundOn, setExampleSoundOn] = useState(true);
   const [cardSoundOn, setCardSoundOn] = useState({});
   const cardVideoRefs = useRef({});
-  const imagePreviewUrlsRef = useRef([null, null]);
   const [photoTipOpen, setPhotoTipOpen] = useState(false);
   const [photoTipAnchor, setPhotoTipAnchor] = useState({ left: 0, top: 0 });
   const [reuseSourceJobId, setReuseSourceJobId] = useState(null);
@@ -76,11 +75,6 @@ function DashboardHome() {
     setGenError(null);
     setJobId(null);
     setImages([null, null]);
-    setImagePreviews([null, null]);
-    imagePreviewUrlsRef.current.forEach((url) => {
-      if (url) URL.revokeObjectURL(url);
-    });
-    imagePreviewUrlsRef.current = [null, null];
 
     navigate(location.pathname, { replace: true, state: null });
   }, [templatesLoading, location.state, location.pathname, navigate]);
@@ -107,23 +101,7 @@ function DashboardHome() {
       next[index] = file || null;
       return next;
     });
-    setImagePreviews((prev) => {
-      const next = [...prev];
-      if (imagePreviewUrlsRef.current[index]) {
-        URL.revokeObjectURL(imagePreviewUrlsRef.current[index]);
-      }
-      const nextUrl = file ? URL.createObjectURL(file) : null;
-      imagePreviewUrlsRef.current[index] = nextUrl;
-      next[index] = nextUrl;
-      return next;
-    });
   };
-
-  useEffect(() => () => {
-    imagePreviewUrlsRef.current.forEach((url) => {
-      if (url) URL.revokeObjectURL(url);
-    });
-  }, []);
 
   const handleGenerate = async () => {
     if (!activeTemplateId) return;
@@ -177,11 +155,6 @@ function DashboardHome() {
       setGenError(null);
       setJobId(null);
       setImages([null, null]);
-      setImagePreviews([null, null]);
-      imagePreviewUrlsRef.current.forEach((url) => {
-        if (url) URL.revokeObjectURL(url);
-      });
-      imagePreviewUrlsRef.current = [null, null];
       setReuseSourceJobId(null);
       setReuseSourceImages([]);
     }
@@ -200,6 +173,8 @@ function DashboardHome() {
 
   return (
     <div className="p-6 lg:p-8">
+      <AiAdChatPanel />
+
       <section className="mb-10">
         {/* Categories pills — только когда есть категории с API */}
         {categories.length > 0 && (
@@ -624,31 +599,18 @@ function DashboardHome() {
                           )}
                           <div className="flex gap-2 max-w-[200px]">
                             {[0, 1].map((slot) => (
-                              <label key={slot} className="cursor-pointer flex-1 min-w-0 group">
+                              <label key={slot} className="cursor-pointer flex-1 min-w-0">
                                 <input
                                   type="file"
                                   accept="image/*"
                                   className="hidden"
                                   onChange={(e) => setImageAt(slot, e.target.files?.[0] || null)}
                                 />
-                                <div className="relative aspect-square w-full max-w-[92px] rounded-lg border border-dashed border-gray-300 bg-gray-50 flex flex-col items-center justify-center text-[11px] text-gray-500 hover:border-primary hover:text-primary transition-colors overflow-hidden">
+                                <div className="aspect-square w-full max-w-[92px] rounded-lg border border-dashed border-gray-300 bg-gray-50 flex flex-col items-center justify-center text-[11px] text-gray-500 hover:border-primary hover:text-primary transition-colors overflow-hidden">
                                   {images[slot] ? (
-                                    <>
-                                      {imagePreviews[slot] ? (
-                                        <img
-                                          src={imagePreviews[slot]}
-                                          alt={`Новое фото ${slot + 1}`}
-                                          className="absolute inset-0 w-full h-full object-cover"
-                                        />
-                                      ) : (
-                                        <span className="px-2 truncate w-full text-center text-gray-700">
-                                          {images[slot].name}
-                                        </span>
-                                      )}
-                                      <div className="absolute inset-0 bg-black/55 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center px-1 text-[10px] font-medium text-center">
-                                        Заменить фото
-                                      </div>
-                                    </>
+                                    <span className="px-2 truncate w-full text-center text-gray-700">
+                                      {images[slot].name}
+                                    </span>
                                   ) : (
                                     <>
                                       <span className="text-lg mb-1">+</span>
@@ -733,31 +695,18 @@ function DashboardHome() {
                       )}
                       <div className="flex gap-2 max-w-[200px]">
                         {[0, 1].map((slot) => (
-                          <label key={slot} className="cursor-pointer flex-1 min-w-0 group">
+                          <label key={slot} className="cursor-pointer flex-1 min-w-0">
                             <input
                               type="file"
                               accept="image/*"
                               className="hidden"
                               onChange={(e) => setImageAt(slot, e.target.files?.[0] || null)}
                             />
-                            <div className="relative aspect-square w-full max-w-[92px] rounded-lg border border-dashed border-gray-300 bg-gray-50 flex flex-col items-center justify-center text-[11px] text-gray-500 hover:border-primary hover:text-primary transition-colors overflow-hidden">
+                            <div className="aspect-square w-full max-w-[92px] rounded-lg border border-dashed border-gray-300 bg-gray-50 flex flex-col items-center justify-center text-[11px] text-gray-500 hover:border-primary hover:text-primary transition-colors overflow-hidden">
                               {images[slot] ? (
-                                <>
-                                  {imagePreviews[slot] ? (
-                                    <img
-                                      src={imagePreviews[slot]}
-                                      alt={`Новое фото ${slot + 1}`}
-                                      className="absolute inset-0 w-full h-full object-cover"
-                                    />
-                                  ) : (
-                                    <span className="px-2 truncate w-full text-center text-gray-700">
-                                      {images[slot].name}
-                                    </span>
-                                  )}
-                                  <div className="absolute inset-0 bg-black/55 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center px-1 text-[10px] font-medium text-center">
-                                    Заменить фото
-                                  </div>
-                                </>
+                                <span className="px-2 truncate w-full text-center text-gray-700">
+                                  {images[slot].name}
+                                </span>
                               ) : (
                                 <>
                                   <span className="text-lg mb-1">+</span>

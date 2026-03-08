@@ -37,51 +37,74 @@ class ProcessGenerationJob implements ShouldQueue
         $job->update(['status' => GenerationJob::STATUS_PROCESSING]);
         Log::info('[Generation] ProcessGenerationJob запущен', ['job_id' => $job->id]);
 
-        $template = Template::find($job->template_id);
-        if (!$template) {
-            $job->update([
-                'status' => GenerationJob::STATUS_FAILED,
-                'error_message' => 'Template not found',
-            ]);
-
-            return;
-        }
-
         $userImageItems = $this->resolveImagePaths($job);
+        $allImageItems = $userImageItems;
 
-        if (count($userImageItems) > 0) {
-            $mergedPrompt = $promptMerge->mergeWithVision(
-                $template->original_prompt,
-                (string) $job->user_prompt,
-                $userImageItems,
-                $job->id,
-                $job->user_id
-            );
+        $template = null;
+        $mergedPrompt = '';
+
+        if ($job->template_id) {
+            $template = Template::find($job->template_id);
+            if (!$template) {
+                $job->update([
+                    'status' => GenerationJob::STATUS_FAILED,
+                    'error_message' => 'Template not found',
+                ]);
+
+                return;
+            }
+
+            if (count($userImageItems) > 0) {
+                $mergedPrompt = $promptMerge->mergeWithVision(
+                    $template->original_prompt,
+                    (string) $job->user_prompt,
+                    $userImageItems,
+                    $job->id,
+                    $job->user_id
+                );
+            } else {
+                $mergedPrompt = $promptMerge->merge(
+                    $template->original_prompt,
+                    (string) $job->user_prompt,
+                    $job->id,
+                    $job->user_id
+                );
+            }
+
+            $templateRefItems = $this->resolveTemplateReferencePaths($template);
+
+            // 0 фото юзера → используем референсы шаблона (начальный кадр + фото продукта).
+            // 1–2 фото юзера → начальный кадр из шаблона (первый референс) + фото продукта от юзера.
+            if (count($userImageItems) === 0) {
+                $allImageItems = $templateRefItems;
+            } else {
+                $initialFrame = isset($templateRefItems[0]) ? [$templateRefItems[0]] : [];
+                $allImageItems = array_merge($initialFrame, $userImageItems);
+            }
         } else {
-            $mergedPrompt = $promptMerge->merge(
-                $template->original_prompt,
-                (string) $job->user_prompt,
-                $job->id,
-                $job->user_id
-            );
+            // Режим генерации из AI-чата: user_prompt уже финальный prompt для Veo3.
+            $mergedPrompt = trim((string) $job->user_prompt);
+            if ($mergedPrompt === '') {
+                $job->update([
+                    'status' => GenerationJob::STATUS_FAILED,
+                    'error_message' => 'Prompt is empty',
+                ]);
+
+                return;
+            }
         }
+
         $job->update(['merged_prompt' => $mergedPrompt]);
-
-        $templateRefItems = $this->resolveTemplateReferencePaths($template);
-
-        // 0 фото юзера → используем референсы шаблона (начальный кадр + фото продукта).
-        // 1–2 фото юзера → начальный кадр из шаблона (первый референс) + фото продукта от юзера.
-        $allImageItems = [];
-        if (count($userImageItems) === 0) {
-            $allImageItems = $templateRefItems;
-        } else {
-            $initialFrame = isset($templateRefItems[0]) ? [$templateRefItems[0]] : [];
-            $allImageItems = array_merge($initialFrame, $userImageItems);
-        }
 
         $user = $job->user()->first();
         $withWatermark = $user ? $user->shouldUseVideoWatermark() : true;
-        Log::info('[Generation] Запрос к Veo (Kie.ai)', ['job_id' => $job->id, 'prompt_length' => strlen($mergedPrompt), 'images_count' => count($allImageItems), 'with_watermark' => $withWatermark]);
+        Log::info('[Generation] Запрос к Veo (Kie.ai)', [
+            'job_id' => $job->id,
+            'template_id' => $job->template_id,
+            'prompt_length' => strlen($mergedPrompt),
+            'images_count' => count($allImageItems),
+            'with_watermark' => $withWatermark,
+        ]);
         $result = $veo->generate($mergedPrompt, $allImageItems, $withWatermark);
 
         if ($result !== null) {

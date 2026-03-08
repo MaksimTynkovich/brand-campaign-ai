@@ -115,7 +115,7 @@ class VeoService
     /**
      * Преобразует элементы [disk, path] в публичные URL для Kie API.
      * — public: Storage::url().
-     * — local: временная подписанная ссылка на api/generation/serve-image (Kie должен иметь доступ к APP_URL).
+     * — local: копируем во временную публичную папку и отдаём прямой URL (Kie не поддерживает подписанные ссылки за прокси).
      */
     private function resolveImageUrls(array $imageItems): array
     {
@@ -131,21 +131,43 @@ class VeoService
                 continue;
             }
             if ($disk === 'local' && Storage::disk('local')->exists($path)) {
-                $urls[] = URL::temporarySignedRoute(
-                    'generation.serve-image',
-                    now()->addMinutes(60),
-                    ['path' => $path]
-                );
+                $publicUrl = $this->copyLocalToPublicTemp($path);
+                if ($publicUrl !== null) {
+                    $urls[] = $publicUrl;
+                }
             }
         }
 
         return $urls;
     }
 
+    /**
+     * Копирует файл из local (например chat-input/) в публичную временную папку и возвращает полный URL.
+     * Kie.ai запрашивает картинки по URL; подписанные ссылки за прокси дают 403, поэтому отдаём прямой URL.
+     */
+    private function copyLocalToPublicTemp(string $localPath): ?string
+    {
+        $content = Storage::disk('local')->get($localPath);
+        if ($content === null || $content === '') {
+            return null;
+        }
+        $ext = pathinfo($localPath, PATHINFO_EXTENSION) ?: 'jpg';
+        $safeExt = preg_match('/^[a-z0-9]+$/i', $ext) ? $ext : 'jpg';
+        $tempPath = 'generation-temp/' . uniqid('img_', true) . '.' . $safeExt;
+        Storage::disk('public')->put($tempPath, $content);
+        return URL::to(Storage::disk('public')->url($tempPath));
+    }
+
     private function downloadAndSave(string $videoUrl): ?string
     {
         try {
-            $response = Http::timeout(120)->get($videoUrl);
+            // Таймаут увеличен: видео ~5 MB при медленном канале не успевает за 120 сек
+            $client = Http::timeout(600);
+            $proxy = config('services.kie_veo.proxy');
+            if (! empty($proxy)) {
+                $client = $client->withOptions(['proxy' => $proxy]);
+            }
+            $response = $client->get($videoUrl);
             if (!$response->successful()) {
                 Log::warning('VeoService: failed to download video', ['url' => $videoUrl]);
 
